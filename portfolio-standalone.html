@@ -1,0 +1,3799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milbert A. Lomibao | Computer Engineering Portfolio</title>
+    
+    <!-- Meta tags for social sharing & SEO -->
+    <meta name="description" content="Portfolio of Milbert A. Lomibao - Computer Engineering. An immersive, interactive deep-sea Atlantic experience with realistic fluid waves and bioluminescent creatures.">
+    <meta name="theme-color" content="#020b14">
+
+    <!-- Fonts: Orbitron & Inter for deep sea sci-fi / engineering aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Orbitron:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23020b14' stroke='%2300f0ff' stroke-width='4'/><circle cx='50' cy='50' r='18' fill='%2300f0ff'/><circle cx='62' cy='38' r='6' fill='%23ffffff'/></svg>">
+
+    <!-- Stylesheets -->
+    <style>
+/* ====================================================================
+   DEEP SEA ATLANTIC PORTFOLIO - STYLING
+   Milbert A. Lomibao | Computer Engineering
+   ==================================================================== */
+
+:root {
+    --bg-abyss-dark: #000408;
+    --bg-atlantic-deep: #020b14;
+    --bg-surface-blue: #03172e;
+    
+    --cyan-glow: #00f0ff;
+    --cyan-light: #38bdf8;
+    --cyan-dark: #0369a1;
+    --cyan-muted: rgba(56, 189, 248, 0.15);
+    
+    --purple-biolum: #c084fc;
+    --red-stalker: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.4);
+    
+    --text-white: #f8fafc;
+    --text-cyan: #e0f2fe;
+    --text-dim: #94a3b8;
+    --text-dark: #64748b;
+    
+    --font-heading: 'Orbitron', 'Cinzel', -apple-system, sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    
+    --glass-bg: rgba(3, 15, 30, 0.78);
+    --glass-border: rgba(56, 189, 248, 0.25);
+    --glass-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.65);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-abyss-dark);
+    font-family: var(--font-body);
+    color: var(--text-white);
+    position: relative;
+    cursor: default;
+}
+
+/* ====================================================================
+   CANVAS LAYER STACK
+   ==================================================================== */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#canvas-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+
+/* Interactive water ripple canvas captures dragging events */
+#ripple-canvas {
+    pointer-events: auto !important;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+#ripple-canvas.cursor-hover {
+    cursor: pointer !important;
+}
+
+#ripple-canvas.cursor-dragging {
+    cursor: grabbing !important;
+}
+
+/* ====================================================================
+   UI OVERLAY
+   ==================================================================== */
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none; /* Allows mouse drags to pass through to canvas */
+}
+
+/* Header Bar */
+.abyssal-header {
+    width: 100%;
+    padding: 24px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.telemetry-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 18px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--cyan-glow);
+    box-shadow: 0 0 10px var(--cyan-glow);
+    animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+.telemetry-text {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--cyan-light);
+    font-weight: 600;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hud-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-cyan);
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.hud-btn:hover {
+    background: rgba(14, 165, 233, 0.25);
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-icon svg {
+    display: block;
+}
+
+.audio-icon-active {
+    display: none;
+    color: var(--cyan-glow);
+}
+
+.audio-active .audio-icon-muted {
+    display: none;
+}
+
+.audio-active .audio-icon-active {
+    display: block;
+}
+
+.audio-active {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+/* ====================================================================
+   HERO SECTION (FRONT PAGE)
+   ==================================================================== */
+.hero-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 20px;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hero-section.dimmed {
+    opacity: 0.15;
+    transform: scale(0.96);
+    pointer-events: none;
+}
+
+.hero-content {
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-surtitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.accent-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan-light));
+}
+
+.hero-surtitle .accent-line:last-child {
+    background: linear-gradient(90deg, var(--cyan-light), transparent);
+}
+
+.surtitle-text {
+    font-family: var(--font-heading);
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--cyan-light);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.hero-name {
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 6vw, 4.8rem);
+    font-weight: 900;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 0 35px rgba(56, 189, 248, 0.45), 0 0 70px rgba(2, 132, 199, 0.25);
+    margin-bottom: 20px;
+}
+
+.name-first {
+    color: #ffffff;
+}
+
+.name-last {
+    color: var(--cyan-light);
+    background: linear-gradient(135deg, #ffffff 20%, var(--cyan-light) 70%, #0284c7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-discipline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.discipline-badge {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #38bdf8;
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 4px 14px;
+    border-radius: 4px;
+}
+
+.academic-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.2rem, 3vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-cyan);
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+.hero-tagline {
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    font-weight: 400;
+    max-width: 650px;
+    line-height: 1.6;
+    margin-bottom: 34px;
+}
+
+/* Interaction Hints */
+.interaction-hints {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    background: rgba(2, 13, 26, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+}
+
+.hint-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hint-icon {
+    display: flex;
+    align-items: center;
+    color: var(--cyan-light);
+}
+
+.ping-icon svg {
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.hint-separator {
+    color: rgba(56, 189, 248, 0.3);
+}
+
+/* ====================================================================
+   FOOTER TELEMETRY
+   ==================================================================== */
+.abyssal-footer {
+    width: 100%;
+    padding: 20px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    pointer-events: auto;
+}
+
+.sensor-readout {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    background: rgba(2, 11, 20, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    padding: 6px 14px;
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.sensor-label {
+    color: var(--text-dark);
+    margin-right: 6px;
+}
+
+.sensor-val {
+    color: var(--cyan-light);
+    font-weight: 600;
+}
+
+.eyes-indicator .sensor-val.stalking-text {
+    color: var(--red-stalker);
+    text-shadow: 0 0 10px var(--red-glow);
+    animation: pulseRed 3s infinite ease-in-out;
+}
+
+/* ====================================================================
+   CONTACT DOSSIER & ZOOM MODAL
+   ==================================================================== */
+.contact-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+}
+
+.contact-modal.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(1, 6, 14, 0.68);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.modal-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 620px;
+    background: rgba(3, 18, 36, 0.92);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.modal-card button,
+.modal-card .channel-btn,
+.modal-card .close-btn {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.contact-modal.active .modal-card {
+    transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    padding-bottom: 16px;
+    margin-bottom: 22px;
+}
+
+.terminal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--cyan-light);
+    font-weight: 700;
+}
+
+.beacon-pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--cyan-glow);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--cyan-glow);
+    animation: ping 1.8s infinite;
+}
+
+.close-btn {
+    background: rgba(2, 11, 20, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: var(--text-dim);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    color: #fff;
+    border-color: var(--cyan-light);
+    background: rgba(14, 165, 233, 0.2);
+    transform: scale(1.05);
+}
+
+/* Profile section inside modal */
+.card-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.avatar-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    padding: 2px;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+    flex-shrink: 0;
+}
+
+.avatar-core {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bg-atlantic-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--cyan-light);
+    letter-spacing: 2px;
+}
+
+.profile-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+.profile-badge {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--cyan-light);
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.profile-bio {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--cyan-light);
+    font-weight: 700;
+    margin-bottom: 12px;
+    opacity: 0.85;
+}
+
+/* Direct Action Buttons (Facebook, GitHub, LinkedIn) */
+.direct-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.channel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.channel-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    transition: left 0.6s ease;
+}
+
+.channel-btn:hover::before {
+    left: 100%;
+}
+
+.facebook-btn {
+    background: linear-gradient(135deg, rgba(24, 119, 242, 0.25), rgba(7, 40, 90, 0.45));
+    border-color: rgba(24, 119, 242, 0.4);
+}
+
+.facebook-btn:hover {
+    background: linear-gradient(135deg, rgba(24, 119, 242, 0.45), rgba(10, 60, 140, 0.65));
+    border-color: #1877f2;
+    box-shadow: 0 0 20px rgba(24, 119, 242, 0.4);
+    transform: translateY(-2px);
+}
+
+.github-btn {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+.github-btn:hover {
+    background: linear-gradient(135deg, rgba(51, 65, 85, 0.7), rgba(30, 41, 59, 0.9));
+    border-color: #94a3b8;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.linkedin-btn {
+    background: linear-gradient(135deg, rgba(10, 102, 194, 0.25), rgba(5, 45, 90, 0.45));
+    border-color: rgba(10, 102, 194, 0.4);
+}
+
+.linkedin-btn:hover {
+    background: linear-gradient(135deg, rgba(10, 102, 194, 0.45), rgba(10, 60, 120, 0.65));
+    border-color: #0077b5;
+    box-shadow: 0 0 20px rgba(10, 102, 194, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Pulsing highlight when opened via specific creature */
+.target-highlight {
+    animation: targetBeaconPulse 1.2s ease-in-out 3;
+    border-color: var(--cyan-glow) !important;
+}
+
+@keyframes targetBeaconPulse {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(0, 240, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+        border-color: var(--cyan-glow);
+    }
+}
+
+.btn-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.channel-icon {
+    display: flex;
+    align-items: center;
+}
+
+.channel-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.channel-title {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.channel-subtitle {
+    font-size: 10px;
+    color: var(--text-dim);
+}
+
+.external-arrow {
+    font-size: 16px;
+    color: var(--text-dim);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.channel-btn:hover .external-arrow {
+    color: #fff;
+    transform: translate(2px, -2px);
+}
+
+/* Contact Details List (Copyable) */
+.contact-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(2, 10, 20, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.contact-item:hover {
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+.item-icon {
+    color: var(--cyan-light);
+    display: flex;
+    align-items: center;
+}
+
+.item-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-label {
+    font-family: var(--font-heading);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-dark);
+}
+
+.item-value {
+    font-size: 12.5px;
+    color: var(--text-cyan);
+    text-decoration: none;
+    font-family: var(--font-mono);
+}
+
+.copy-btn {
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: var(--cyan-light);
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(14, 165, 233, 0.3);
+    border-color: var(--cyan-glow);
+    color: #fff;
+}
+
+/* Skills Cloud */
+.skills-tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.skill-tag {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-cyan);
+    background: rgba(2, 18, 36, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 5px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.skill-tag:hover {
+    border-color: var(--cyan-light);
+    background: rgba(14, 165, 233, 0.18);
+    transform: translateY(-1px);
+}
+
+/* Return Button */
+.card-footer {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(56, 189, 248, 0.18);
+    padding-top: 18px;
+}
+
+.return-ocean-btn {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(3, 105, 161, 0.4));
+    border: 1px solid var(--cyan-light);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.25s ease;
+}
+
+.return-ocean-btn:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(3, 105, 161, 0.6));
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.return-arrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.return-ocean-btn:hover .return-arrow {
+    transform: translateY(2px);
+}
+
+/* Copy Toast */
+.copy-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: var(--glass-bg);
+    border: 1px solid var(--cyan-glow);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 10px 24px;
+    border-radius: 9999px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 240, 255, 0.35);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.copy-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ====================================================================
+   KEYFRAME ANIMATIONS
+   ==================================================================== */
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.45;
+        transform: scale(0.85);
+    }
+}
+
+@keyframes pulseRed {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 12px var(--red-glow);
+    }
+    50% {
+        opacity: 0.55;
+        text-shadow: 0 0 4px var(--red-glow);
+    }
+}
+
+@keyframes ping {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.9;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0.9;
+    }
+}
+
+/* ====================================================================
+   RESPONSIVE DESIGN
+   ==================================================================== */
+@media (max-width: 768px) {
+    .abyssal-header {
+        padding: 16px 20px;
+    }
+
+    .abyssal-footer {
+        padding: 14px 20px;
+        font-size: 10px;
+    }
+
+    .hero-name {
+        font-size: 2.2rem;
+    }
+
+    .academic-title {
+        font-size: 1.2rem;
+    }
+
+    .interaction-hints {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 18px;
+        border-radius: 16px;
+    }
+
+    .hint-separator {
+        display: none;
+    }
+
+    .direct-buttons-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-card {
+        padding: 22px 18px;
+    }
+
+    .card-profile {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (min-width: 1025px) {
+    #contact-modal {
+        justify-content: flex-end;
+        padding-right: 80px;
+    }
+}
+
+</style>
+</head>
+<body>
+    <!-- Ocean Canvas Layer Stack -->
+    <div id="canvas-container">
+        <!-- 1. Background, Godrays & Caustics -->
+        <canvas id="ocean-canvas"></canvas>
+        <!-- 2. Lurking Red Eyes in the Dark Abyss -->
+        <canvas id="eyes-canvas"></canvas>
+        <!-- 3. Bioluminescent Wandering Creatures -->
+        <canvas id="creatures-canvas"></canvas>
+        <!-- 4. Marine Snow & Cavitation Bubbles -->
+        <canvas id="particles-canvas"></canvas>
+        <!-- 5. Interactive Fluid Waves & Refraction Surface -->
+        <canvas id="ripple-canvas"></canvas>
+    </div>
+
+    <!-- UI Overlay Layer -->
+    <div id="ui-overlay">
+        <!-- Header / Telemetry Bar -->
+        <header class="abyssal-header">
+            <div class="telemetry-badge">
+                <span class="status-dot"></span>
+                <span class="telemetry-text">ATLANTIC TRENCH // <span id="depth-meter">4,280</span>M DEPTH</span>
+            </div>
+            
+            <div class="header-controls">
+                <!-- Sound Ambient Toggle -->
+                <button id="audio-toggle" class="hud-btn" title="Toggle Deep-Sea Hydrophone Audio" aria-label="Toggle Audio">
+                    <span class="btn-icon">
+                        <svg class="audio-icon-muted" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <line x1="23" y1="9" x2="17" y2="15"></line>
+                            <line x1="17" y1="9" x2="23" y2="15"></line>
+                        </svg>
+                        <svg class="audio-icon-active" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                    </span>
+                    <span id="audio-label">SOUND: MUTED</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Front Page Hero -->
+        <main class="hero-section" id="hero-section">
+            <div class="hero-content">
+                <div class="hero-surtitle">
+                    <span class="accent-line"></span>
+                    <span class="surtitle-text">PORTFOLIO // DIGITAL ABYSS</span>
+                    <span class="accent-line"></span>
+                </div>
+
+                <h1 class="hero-name" id="hero-name">
+                    <span class="name-first">Milbert A.</span>
+                    <span class="name-last">Lomibao</span>
+                </h1>
+
+                <div class="hero-discipline">
+                    <span class="discipline-badge">ACADEMIC KNOWLEDGE</span>
+                    <h2 class="academic-title" id="hero-title">Computer Engineering</h2>
+                </div>
+
+                <p class="hero-tagline" id="hero-tagline">
+                    Embedded Systems • Computer Architecture • Hardware & Software Systems
+                </p>
+
+                <!-- Action guide / Interaction hints -->
+                <div class="interaction-hints">
+                    <div class="hint-item">
+                        <span class="hint-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </span>
+                        <span>Drag mouse to produce realistic water waves</span>
+                    </div>
+                    <div class="hint-separator">|</div>
+                    <div class="hint-item">
+                        <span class="hint-icon ping-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <circle cx="12" cy="12" r="8"></circle>
+                            </svg>
+                        </span>
+                        <span>Tap wandering creatures to zoom & reveal contacts</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Telemetry Bottom Footer -->
+        <footer class="abyssal-footer">
+            <div class="sensor-readout">
+                <span class="sensor-label">PRESSURE:</span>
+                <span class="sensor-val" id="val-pressure">428 ATM</span>
+            </div>
+            <div class="sensor-readout">
+                <span class="sensor-label">TEMP:</span>
+                <span class="sensor-val" id="val-temp">2.4°C</span>
+            </div>
+            <div class="sensor-readout">
+                <span class="sensor-label">SALINITY:</span>
+                <span class="sensor-val">34.8 PSU</span>
+            </div>
+            <div class="sensor-readout eyes-indicator" id="eyes-status">
+                <span class="sensor-label">LURKING ENTITY:</span>
+                <span class="sensor-val stalking-text">ACTIVE IN SHADOWS</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Contact & Zoom Modal Terminal -->
+    <div id="contact-modal" class="contact-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="modal-backdrop"></div>
+        <div class="modal-card">
+            <!-- Modal Header -->
+            <div class="card-header">
+                <div class="terminal-tag">
+                    <span class="beacon-pulse"></span>
+                    <span id="terminal-beacon-text">CREATURE BEACON ACQUIRED // CONTACT DOSSIER</span>
+                </div>
+                <button id="close-modal-btn" class="close-btn" title="Return to Ocean" aria-label="Close Contacts">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Profile Overview -->
+            <div class="card-profile">
+                <div class="avatar-ring">
+                    <div class="avatar-core">
+                        <span>ML</span>
+                    </div>
+                </div>
+                <div class="profile-meta">
+                    <h2 class="profile-name" id="modal-name">Milbert A. Lomibao</h2>
+                    <div class="profile-badge" id="modal-discipline">Computer Engineering</div>
+                    <p class="profile-bio" id="modal-bio">
+                        Passionate Computer Engineering student & builder fascinated by low-level systems, high-performance computing, hardware-software integration, and creative web technologies.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Primary Direct Action Buttons (Facebook, GitHub, LinkedIn - opens in new tab) -->
+            <div class="section-title">
+                <span>DIRECT CHANNELS (CLICK TO OPEN IN NEW TAB)</span>
+            </div>
+            <div class="direct-buttons-grid" id="section-channels">
+                <!-- Facebook Button -->
+                <a id="btn-facebook" href="https://www.facebook.com/facebookdatcomdatph/" target="_blank" rel="noopener noreferrer" class="channel-btn facebook-btn">
+                    <div class="btn-content">
+                        <div class="channel-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </div>
+                        <div class="channel-info">
+                            <span class="channel-title">Facebook</span>
+                            <span class="channel-subtitle" id="fb-subtitle">Connect on Social Media</span>
+                        </div>
+                    </div>
+                    <span class="external-arrow">↗</span>
+                </a>
+
+                <!-- GitHub Button -->
+                <a id="btn-github" href="https://github.com/milbert022?tab=repositories" target="_blank" rel="noopener noreferrer" class="channel-btn github-btn">
+                    <div class="btn-content">
+                        <div class="channel-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                        </div>
+                        <div class="channel-info">
+                            <span class="channel-title">GitHub</span>
+                            <span class="channel-subtitle" id="gh-subtitle">Repositories & Code</span>
+                        </div>
+                    </div>
+                    <span class="external-arrow">↗</span>
+                </a>
+
+                <!-- LinkedIn Button -->
+                <a id="btn-linkedin" href="https://www.linkedin.com/in/lomibao-milbert-a-475594444/?isSelfProfile=true" target="_blank" rel="noopener noreferrer" class="channel-btn linkedin-btn">
+                    <div class="btn-content">
+                        <div class="channel-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                        </div>
+                        <div class="channel-info">
+                            <span class="channel-title">LinkedIn</span>
+                            <span class="channel-subtitle" id="li-subtitle">Professional Network</span>
+                        </div>
+                    </div>
+                    <span class="external-arrow">↗</span>
+                </a>
+            </div>
+
+            <!-- Placeholder Contact Information with Copy Support -->
+            <div class="section-title">
+                <span>ADDITIONAL CONTACTS & DETAILS</span>
+            </div>
+            <div class="contact-details-list">
+                <!-- Email Item -->
+                <div class="contact-item" id="item-email">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="item-text">
+                        <span class="item-label">EMAIL ADDRESS</span>
+                        <a href="mailto:bert0022.lol@gmail.com" class="item-value" id="val-email">bert0022.lol@gmail.com</a>
+                    </div>
+                    <button class="copy-btn" data-copy="val-email" title="Copy Email">
+                        <span class="copy-text">COPY</span>
+                    </button>
+                </div>
+
+                <!-- Phone Item -->
+                <div class="contact-item" id="item-phone">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </div>
+                    <div class="item-text">
+                        <span class="item-label">PHONE NUMBER</span>
+                        <a href="tel:+639510212678" class="item-value" id="val-phone">+63 951 021 2678</a>
+                    </div>
+                    <button class="copy-btn" data-copy="val-phone" title="Copy Phone">
+                        <span class="copy-text">COPY</span>
+                    </button>
+                </div>
+
+                <!-- Location Item -->
+                <div class="contact-item" id="item-location">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="item-text">
+                        <span class="item-label">LOCATION</span>
+                        <span class="item-value" id="val-location">Baras, Rizal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Knowledge Tags -->
+            <div class="section-title">
+                <span>CORE COMPETENCIES & ACADEMIC KNOWLEDGE</span>
+            </div>
+            <div class="skills-tag-cloud" id="modal-skills">
+                <!-- Dynamically populated from config.js -->
+            </div>
+
+            <!-- Modal Footer Controls -->
+            <div class="card-footer">
+                <button id="return-btn" class="return-ocean-btn">
+                    <span>RETURN TO OCEAN EXPLORATION</span>
+                    <span class="return-arrow">↓</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast for Copy Action -->
+    <div id="copy-toast" class="copy-toast" aria-live="polite">
+        <span>Copied to clipboard!</span>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+/* --- js\config.js --- */
+/**
+ * ====================================================================
+ * PORTFOLIO CONFIGURATION - MILBERT A. LOMIBAO
+ * ====================================================================
+ * Edit your personal information, links, and portfolio details below.
+ * Everything here updates the portfolio display and interactive creature popups automatically!
+ */
+
+const PORTFOLIO_CONFIG = {
+    // Personal Details
+    name: "Milbert A. Lomibao",
+    title: "Computer Engineering",
+    academicField: "Computer Engineering",
+    specialization: "Embedded Systems • Computer Architecture • Software & Hardware Systems",
+    bio: "Passionate Computer Engineering student & builder fascinated by low-level systems, high-performance computing, hardware-software integration, and creative web technologies. Exploring the digital depths where physics meets code.",
+    depthTagline: "Exploring the Abyssal Depths of Technology",
+
+    // Contact & Social Information
+    contacts: {
+        // Direct Links that open in a new tab when clicked
+        facebook: {
+            label: "Facebook",
+            url: "https://www.facebook.com/facebookdatcomdatph/",
+            icon: "facebook",
+            display: "Milbert Lomibao",
+            description: "Connect on Social Media"
+        },
+        github: {
+            label: "GitHub",
+            url: "https://github.com/milbert022?tab=repositories",
+            icon: "github",
+            display: "github.com/milbert022",
+            description: "View Code Repositories & Projects"
+        },
+        linkedin: {
+            label: "LinkedIn",
+            url: "https://www.linkedin.com/in/lomibao-milbert-a-475594444/?isSelfProfile=true",
+            icon: "linkedin",
+            display: "Milbert A. Lomibao",
+            description: "Professional Network"
+        },
+
+        // Placeholder items with copy-to-clipboard functionality
+        email: {
+            label: "Email",
+            value: "bert0022.lol@gmail.com",
+            url: "mailto:bert0022.lol@gmail.com",
+            icon: "envelope",
+            copyable: true
+        },
+        phone: {
+            label: "Phone",
+            value: "+63 951 021 2678",
+            url: "tel:+639510212678",
+            icon: "phone",
+            copyable: true
+        },
+        location: {
+            label: "Location",
+            value: "Baras, Rizal",
+            icon: "location",
+            copyable: false
+        }
+    },
+
+    // Academic Knowledge & Technical Focus
+    academicSkills: [
+        { name: "Digital Logic Design & Verilog", category: "Hardware" },
+        { name: "Microprocessors & Embedded C/C++", category: "Firmware" },
+        { name: "Computer Architecture & Organization", category: "Systems" },
+        { name: "Data Structures & Algorithms", category: "Software" },
+        { name: "Operating Systems & Concurrency", category: "Systems" },
+        { name: "Computer Networks & Protocols", category: "Networking" },
+        { name: "IoT & Hardware Interfacing", category: "Embedded" },
+        { name: "Full-Stack Web & Graphics (GLSL/WebGL)", category: "Graphics" }
+    ],
+
+    // Ocean Environment Settings
+    oceanSettings: {
+        depthMeters: 4280, // Abyssal zone
+        waterTemperature: "2.4°C",
+        ambientPressure: "428 atm",
+        salinity: "34.8 PSU",
+        enableAudioByDefault: false, // Browser policies require user interaction
+        enableLurkingEyes: true,
+        enableVolumetricLights: true,
+        enableFluidWaves: true
+    }
+};
+
+// Export to window object for global accessibility
+window.PORTFOLIO_CONFIG = PORTFOLIO_CONFIG;
+
+</script>
+<script>
+/* --- js\audio.js --- */
+/**
+ * ====================================================================
+ * DEEP SEA SYNTHETIC AUDIO ENGINE (Web Audio API)
+ * ====================================================================
+ * Fully procedural underwater soundscape with zero external dependencies:
+ * - Abyssal ambient drone (sub-bass hum + filtered noise resonance)
+ * - Hydrodynamic water wave swoosh & bubble sounds on mouse drag
+ * - Ethereal bioluminescent sonar ping on creature tap
+ * - Camera zoom whoosh sound
+ */
+
+class DeepSeaAudioEngine {
+    constructor() {
+        this.ctx = null;
+        this.isMuted = true;
+        this.masterGain = null;
+        this.ambientGain = null;
+        this.isInitialized = false;
+
+        // Ambient nodes
+        this.droneOsc1 = null;
+        this.droneOsc2 = null;
+        this.noiseNode = null;
+        this.ambientFilter = null;
+        this.lfo = null;
+        this.lfoGain = null;
+
+        // Wave drag throttle
+        this.lastDragSoundTime = 0;
+    }
+
+    init() {
+        if (this.isInitialized) return;
+
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+
+            this.ctx = new AudioContext();
+
+            // Master Gain
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.6, this.ctx.currentTime);
+            this.masterGain.connect(this.ctx.destination);
+
+            // Ambient Sub-graph
+            this.ambientGain = this.ctx.createGain();
+            this.ambientGain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+            this.ambientGain.connect(this.masterGain);
+
+            // Preallocate 1-second shared noise buffer for drag sounds (avoids GC allocations)
+            const sharedBufferSize = this.ctx.sampleRate;
+            this.sharedNoiseBuffer = this.ctx.createBuffer(1, sharedBufferSize, this.ctx.sampleRate);
+            const noiseData = this.sharedNoiseBuffer.getChannelData(0);
+            for (let i = 0; i < sharedBufferSize; i++) {
+                noiseData[i] = (Math.random() * 2 - 1) * 0.5;
+            }
+
+            this.setupAmbientDrone();
+            this.isInitialized = true;
+        } catch (e) {
+            console.warn("AudioContext initialization error:", e);
+        }
+    }
+
+    setupAmbientDrone() {
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+
+        // 1. Deep Sub-Bass Drones (Atlantic trench pressure resonance)
+        this.droneOsc1 = this.ctx.createOscillator();
+        this.droneOsc1.type = 'sine';
+        this.droneOsc1.frequency.setValueAtTime(42, now); // 42 Hz deep hum
+
+        this.droneOsc2 = this.ctx.createOscillator();
+        this.droneOsc2.type = 'triangle';
+        this.droneOsc2.frequency.setValueAtTime(56.5, now); // Harmonics
+
+        const droneFilter = this.ctx.createBiquadFilter();
+        droneFilter.type = 'lowpass';
+        droneFilter.frequency.setValueAtTime(110, now);
+        droneFilter.Q.setValueAtTime(3.0, now);
+
+        const oscGain = this.ctx.createGain();
+        oscGain.gain.setValueAtTime(0.25, now);
+
+        this.droneOsc1.connect(droneFilter);
+        this.droneOsc2.connect(droneFilter);
+        droneFilter.connect(oscGain);
+        oscGain.connect(this.ambientGain);
+
+        this.droneOsc1.start();
+        this.droneOsc2.start();
+
+        // 2. Underwater Filtered Ocean Noise (Hydrophone water mass)
+        const bufferSize = this.ctx.sampleRate * 2;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+        for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            // Brown / pink noise approximation for deep water current rumble
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
+            b6 = white * 0.115926;
+        }
+
+        const whiteNoiseSource = this.ctx.createBufferSource();
+        whiteNoiseSource.buffer = noiseBuffer;
+        whiteNoiseSource.loop = true;
+
+        this.ambientFilter = this.ctx.createBiquadFilter();
+        this.ambientFilter.type = 'bandpass';
+        this.ambientFilter.frequency.setValueAtTime(95, now);
+        this.ambientFilter.Q.setValueAtTime(1.8, now);
+
+        // LFO for slow tidal water swell modulation
+        this.lfo = this.ctx.createOscillator();
+        this.lfo.type = 'sine';
+        this.lfo.frequency.setValueAtTime(0.12, now); // 8-second slow breathing wave
+
+        this.lfoGain = this.ctx.createGain();
+        this.lfoGain.gain.setValueAtTime(35, now);
+
+        this.lfo.connect(this.lfoGain);
+        this.lfoGain.connect(this.ambientFilter.frequency);
+        this.lfo.start();
+
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.35, now);
+
+        whiteNoiseSource.connect(this.ambientFilter);
+        this.ambientFilter.connect(noiseGain);
+        noiseGain.connect(this.ambientGain);
+
+        whiteNoiseSource.start();
+    }
+
+    toggleMute() {
+        if (!this.isInitialized) {
+            this.init();
+        }
+
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+
+        this.isMuted = !this.isMuted;
+
+        if (this.masterGain && this.ctx) {
+            const now = this.ctx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            if (this.isMuted) {
+                this.masterGain.gain.setTargetAtTime(0, now, 0.1);
+            } else {
+                this.masterGain.gain.setTargetAtTime(0.65, now, 0.2);
+            }
+        }
+
+        return this.isMuted;
+    }
+
+    /**
+     * Play hydrodynamic water ripple / wave drag audio
+     * @param {number} speed - Drag velocity magnitude
+     */
+    playWaterWaveSound(speed = 1.0) {
+        if (this.isMuted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // Throttle to avoid audio stuttering
+        if (now - this.lastDragSoundTime < 0.12) return;
+        this.lastDragSoundTime = now;
+
+        try {
+            const intensity = Math.min(Math.max(speed / 8, 0.2), 1.2);
+            const duration = 0.25 + intensity * 0.15;
+
+            // Reuse preallocated shared noise buffer to prevent GC spikes
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = this.sharedNoiseBuffer;
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(240 + Math.random() * 120, now);
+            filter.frequency.exponentialRampToValueAtTime(140, now + duration);
+            filter.Q.setValueAtTime(4.0, now);
+
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.22 * intensity, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.masterGain);
+
+            noise.onended = () => {
+                try {
+                    noise.disconnect();
+                    filter.disconnect();
+                    gain.disconnect();
+                } catch (e) {}
+            };
+
+            noise.start(now);
+            noise.stop(now + duration);
+
+            // Also play an occasional subtle bubble chirp
+            if (Math.random() > 0.4) {
+                this.playBubbleChirp(now + 0.03);
+            }
+        } catch (e) {}
+    }
+
+    playBubbleChirp(time) {
+        if (!this.ctx || this.isMuted) return;
+        const now = time || this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        const startFreq = 400 + Math.random() * 350;
+        const endFreq = startFreq + 250 + Math.random() * 200;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.09);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.onended = () => {
+            try {
+                osc.disconnect();
+                gain.disconnect();
+            } catch (e) {}
+        };
+
+        osc.start(now);
+        osc.stop(now + 0.1);
+    }
+
+    /**
+     * Play celestial bioluminescent chime when creature is tapped
+     */
+    playCreatureTapSound() {
+        if (this.isMuted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        try {
+            // Harmonic chime frequencies
+            const freqs = [440, 659.25, 880, 1318.5]; // Ethereal chord
+            freqs.forEach((freq, idx) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+
+                const dur = 1.4 + idx * 0.2;
+                gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+                gain.gain.linearRampToValueAtTime(0.12 / (idx + 1), now + idx * 0.04 + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+
+                osc.start(now + idx * 0.04);
+                osc.stop(now + dur);
+            });
+
+            // Sub-boom resonance for camera zoom
+            const subOsc = this.ctx.createOscillator();
+            const subGain = this.ctx.createGain();
+            subOsc.type = 'sine';
+            subOsc.frequency.setValueAtTime(95, now);
+            subOsc.frequency.exponentialRampToValueAtTime(35, now + 0.8);
+
+            subGain.gain.setValueAtTime(0.28, now);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+            subOsc.connect(subGain);
+            subGain.connect(this.masterGain);
+
+            subOsc.start(now);
+            subOsc.stop(now + 0.85);
+        } catch (e) {}
+    }
+
+    /**
+     * Play reverse whoosh when closing zoom
+     */
+    playZoomOutSound() {
+        if (this.isMuted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(45, now);
+            osc.frequency.exponentialRampToValueAtTime(120, now + 0.4);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(now);
+            osc.stop(now + 0.5);
+        } catch (e) {}
+    }
+}
+
+window.DeepSeaAudioEngine = DeepSeaAudioEngine;
+
+</script>
+<script>
+/* --- js\ripples.js --- */
+/**
+ * ====================================================================
+ * REALISTIC 2D WATER WAVE & FLUID RIPPLE SIMULATION
+ * ====================================================================
+ * Discrete 2D wave equation with damping, surface normal generation,
+ * refractive light bending, and sunlight specular highlights.
+ */
+
+class WaterRippleSimulation {
+    constructor(canvas, options = {}) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        this.customSimScale = options.simScale || null;
+        this.damping = options.damping || 0.982; // Wave persistence
+        this.waveSpeed = options.waveSpeed || 1.0;
+
+        this.buffer1 = null;
+        this.buffer2 = null;
+        this.currentBuffer = null;
+        this.previousBuffer = null;
+        this.imgData = null;
+        this.data32 = null;
+
+        this.resize();
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+
+        // Adaptive scale: keeps simulation resolution balanced across 1080p, 4K, and mobile
+        if (this.customSimScale) {
+            this.simScale = this.customSimScale;
+        } else {
+            this.simScale = Math.max(3, Math.min(6, Math.round(window.innerWidth / 380)));
+        }
+
+        this.width = Math.ceil(window.innerWidth / this.simScale);
+        this.height = Math.ceil(window.innerHeight / this.simScale);
+        this.size = this.width * this.height;
+
+        this.buffer1 = new Float32Array(this.size);
+        this.buffer2 = new Float32Array(this.size);
+        this.currentBuffer = this.buffer1;
+        this.previousBuffer = this.buffer2;
+
+        this.imgData = this.ctx.createImageData(this.width, this.height);
+        this.data32 = new Uint32Array(this.imgData.data.buffer);
+    }
+
+    /**
+     * Disturb the water surface at a specific coordinate
+     * @param {number} x - Screen X
+     * @param {number} y - Screen Y
+     * @param {number} radius - Disturbance radius (in grid cells)
+     * @param {number} strength - Disturbance height/depth
+     */
+    disturb(x, y, radius = 6, strength = 180) {
+        if (!this.currentBuffer) return;
+
+        const simX = Math.floor(x / this.simScale);
+        const simY = Math.floor(y / this.simScale);
+
+        const r = Math.max(1, Math.floor(radius));
+        const rSq = r * r;
+
+        const minX = Math.max(1, simX - r);
+        const maxX = Math.min(this.width - 2, simX + r);
+        const minY = Math.max(1, simY - r);
+        const maxY = Math.min(this.height - 2, simY + r);
+
+        for (let py = minY; py <= maxY; py++) {
+            const dy = py - simY;
+            const rowOffset = py * this.width;
+            for (let px = minX; px <= maxX; px++) {
+                const dx = px - simX;
+                const distSq = dx * dx + dy * dy;
+                if (distSq <= rSq) {
+                    const factor = Math.cos((Math.sqrt(distSq) / r) * (Math.PI / 2));
+                    const currentVal = this.currentBuffer[rowOffset + px];
+                    const nextVal = currentVal + strength * factor;
+                    // Clamp to prevent runaway numerical explosion
+                    this.currentBuffer[rowOffset + px] = Math.max(-320, Math.min(320, nextVal));
+                }
+            }
+        }
+    }
+
+    /**
+     * Interpolate disturbance along mouse drag vector for seamless continuous wake
+     */
+    disturbLine(x1, y1, x2, y2, radius, strength) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 1) {
+            this.disturb(x2, y2, radius, strength);
+            return;
+        }
+
+        // Space steps proportionally to avoid thousands of overlapping cell writes
+        const stepSpacing = Math.max(6, (radius * 0.75) * this.simScale);
+        const steps = Math.max(1, Math.min(30, Math.floor(dist / stepSpacing)));
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = x1 + dx * t;
+            const y = y1 + dy * t;
+            this.disturb(x, y, radius, strength);
+        }
+    }
+
+    /**
+     * Step the 2D wave equation physics
+     */
+    updatePhysics() {
+        const w = this.width;
+        const h = this.height;
+        const curr = this.currentBuffer;
+        const prev = this.previousBuffer;
+        const damp = this.damping;
+
+        // Wave propagation kernel
+        for (let y = 1; y < h - 1; y++) {
+            const row = y * w;
+            const rowAbove = (y - 1) * w;
+            const rowBelow = (y + 1) * w;
+
+            for (let x = 1; x < w - 1; x++) {
+                const idx = row + x;
+
+                // Discrete Laplacian approximation
+                const wave = (
+                    curr[idx - 1] +
+                    curr[idx + 1] +
+                    curr[rowAbove + x] +
+                    curr[rowBelow + x]
+                ) * 0.5 - prev[idx];
+
+                prev[idx] = wave * damp;
+            }
+        }
+
+        // Swap buffers
+        this.currentBuffer = prev;
+        this.previousBuffer = curr;
+    }
+
+    /**
+     * Render the water ripple surface with refractive caustics and sunlight reflection
+     */
+    render() {
+        this.updatePhysics();
+
+        const w = this.width;
+        const h = this.height;
+        const buffer = this.currentBuffer;
+        const data32 = this.data32;
+
+        for (let y = 1; y < h - 1; y++) {
+            const row = y * w;
+            const rowAbove = (y - 1) * w;
+            const rowBelow = (y + 1) * w;
+
+            for (let x = 1; x < w - 1; x++) {
+                const idx = row + x;
+
+                // Calculate surface normal gradients (dx, dy)
+                const nx = (buffer[idx + 1] - buffer[idx - 1]) * 0.04;
+                const ny = (buffer[rowBelow + x] - buffer[rowAbove + x]) * 0.04;
+                const slope = Math.hypot(nx, ny);
+
+                // Wave height & crest/trough
+                const waveHeight = buffer[idx];
+
+                if (slope > 0.03 || Math.abs(waveHeight) > 1.2) {
+                    // Sunlight angle from ocean surface top (angling downward at ~30 deg)
+                    // Upward-facing wave facets reflect the sunlight towards the viewer
+                    const sunReflection = Math.min(2.5, Math.max(0, -ny * 0.95 + nx * 0.25));
+                    const specular = Math.pow(sunReflection, 3.2) * 235;
+
+                    // Caustic refraction & crest shimmer
+                    const crest = Math.max(0, waveHeight);
+                    const trough = Math.max(0, -waveHeight);
+
+                    if (crest > trough) {
+                        // Wave Crest: bright bioluminescent cyan & sunlight glint
+                        const shimmer = Math.min(255, slope * 55 + crest * 1.1);
+                        const r = Math.min(255, Math.floor(specular * 0.85 + shimmer * 0.25 + 30));
+                        const g = Math.min(255, Math.floor(specular * 0.95 + shimmer * 0.75 + 120));
+                        const b = Math.min(255, Math.floor(specular * 1.0 + shimmer * 0.95 + 190));
+                        const alpha = Math.min(230, Math.floor(specular * 0.85 + shimmer * 0.85 + 25));
+
+                        data32[idx] = (((alpha & 0xff) << 24) >>> 0) | ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
+                    } else {
+                        // Wave Trough: deep oceanic refraction shadow
+                        const deepShade = Math.min(180, slope * 40 + trough * 0.8);
+                        const r = 2;
+                        const g = Math.min(255, Math.floor(deepShade * 0.35 + 8));
+                        const b = Math.min(255, Math.floor(deepShade * 0.75 + 24));
+                        const alpha = Math.min(160, Math.floor(deepShade * 0.75 + 15));
+
+                        data32[idx] = (((alpha & 0xff) << 24) >>> 0) | ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
+                    }
+                } else {
+                    data32[idx] = 0; // Completely transparent ocean water
+                }
+            }
+        }
+
+        // Draw the simulation buffer scaled smoothly to full viewport
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Use offscreen image rendering with high quality bicubic/bilinear smoothing
+        this.ctx.save();
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+
+        // Draw temporary scaled canvas
+        if (!this.tempCanvas) {
+            this.tempCanvas = document.createElement('canvas');
+        }
+        if (this.tempCanvas.width !== w || this.tempCanvas.height !== h) {
+            this.tempCanvas.width = w;
+            this.tempCanvas.height = h;
+            this.tempCtx = this.tempCanvas.getContext('2d');
+        }
+
+        this.tempCtx.putImageData(this.imgData, 0, 0);
+        this.ctx.drawImage(this.tempCanvas, 0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.restore();
+    }
+}
+
+window.WaterRippleSimulation = WaterRippleSimulation;
+
+</script>
+<script>
+/* --- js\eyes.js --- */
+/**
+ * ====================================================================
+ * LURKING BLURRED RED EYES IN THE ABYSS
+ * ====================================================================
+ * Realistic deep-sea predator eyes lurking in dark shadows:
+ * - Soft volumetric crimson glow with atmospheric depth blur
+ * - Organic eye tracking (pupil gaze shifts toward cursor)
+ * - Micro-saccades (subtle organic twitching)
+ * - Eyelid blinking physics
+ * - Fear/Retreat mechanic (fades deep into darkness when approached)
+ * - Relocation & re-emergence in dark corners of the deep sea
+ */
+
+class LurkingEyesSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+
+        this.entities = [];
+        this.mousePos = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
+        this.lightRadius = 260; // Submersible flashlight / cursor influence radius
+
+        this.initEntities();
+    }
+
+    initEntities() {
+        this.entities = [];
+
+        // Primary menacing deep-sea stalker (larger, sharper depth presence)
+        this.entities.push(this.createLurker({
+            baseX: window.innerWidth * 0.78,
+            baseY: window.innerHeight * 0.72,
+            eyeRadius: 16,
+            eyeDistance: 64,
+            pupilRadius: 6,
+            slit: true,
+            depth: 0.95, // Deepest layer
+            glowColor: 'rgba(230, 20, 30, ',
+            innerColor: 'rgba(255, 110, 60, '
+        }));
+
+        // Secondary distant abyssal watcher (further back, softer blur)
+        this.entities.push(this.createLurker({
+            baseX: window.innerWidth * 0.18,
+            baseY: window.innerHeight * 0.82,
+            eyeRadius: 11,
+            eyeDistance: 44,
+            pupilRadius: 4,
+            slit: true,
+            depth: 0.98,
+            glowColor: 'rgba(210, 10, 25, ',
+            innerColor: 'rgba(255, 70, 40, '
+        }));
+
+        // Tertiary deep shadow presence (occasional subtle faint glimmer)
+        this.entities.push(this.createLurker({
+            baseX: window.innerWidth * 0.45,
+            baseY: window.innerHeight * 0.88,
+            eyeRadius: 9,
+            eyeDistance: 38,
+            pupilRadius: 3,
+            slit: false,
+            depth: 0.99,
+            glowColor: 'rgba(180, 5, 20, ',
+            innerColor: 'rgba(240, 50, 30, '
+        }));
+    }
+
+    createLurker(config) {
+        return {
+            x: config.baseX,
+            y: config.baseY,
+            targetX: config.baseX,
+            targetY: config.baseY,
+            eyeRadius: config.eyeRadius,
+            eyeDistance: config.eyeDistance,
+            pupilRadius: config.pupilRadius,
+            slit: config.slit,
+            depth: config.depth,
+            glowColor: config.glowColor,
+            innerColor: config.innerColor,
+
+            // Pupil offset
+            pupilOffsetX: 0,
+            pupilOffsetY: 0,
+            targetPupilX: 0,
+            targetPupilY: 0,
+
+            // Saccade timer
+            saccadeTimer: 2.0,
+
+            // Blinking state
+            blinkProgress: 0, // 0 = open, 1 = fully closed
+            isBlinking: false,
+            timeToNextBlink: 3 + Math.random() * 5,
+
+            // Fade / retreat states
+            opacity: 0.85,
+            targetOpacity: 0.85,
+            state: 'lurking', // 'lurking', 'fleeing', 'hidden', 'returning'
+            hiddenTimer: 0,
+
+            // Organic pulse
+            pulsePhase: Math.random() * Math.PI * 2
+        };
+    }
+
+    setMousePosition(x, y) {
+        this.mousePos.x = x;
+        this.mousePos.y = y;
+    }
+
+    resize() {
+        // Rebalance positions relative to new viewport
+        this.entities.forEach((entity, idx) => {
+            if (idx === 0) {
+                entity.targetX = window.innerWidth * 0.78;
+                entity.targetY = window.innerHeight * 0.72;
+            } else if (idx === 1) {
+                entity.targetX = window.innerWidth * 0.18;
+                entity.targetY = window.innerHeight * 0.82;
+            } else {
+                entity.targetX = window.innerWidth * 0.45;
+                entity.targetY = window.innerHeight * 0.88;
+            }
+            if (entity.state === 'lurking') {
+                entity.x = entity.targetX;
+                entity.y = entity.targetY;
+            }
+        });
+    }
+
+    update(dt) {
+        this.entities.forEach(entity => {
+            // Smooth position interpolation
+            entity.x += (entity.targetX - entity.x) * dt * 1.5;
+            entity.y += (entity.targetY - entity.y) * dt * 1.5;
+
+            // Breathing / pulsating glow
+            entity.pulsePhase += dt * 1.8;
+            const pulse = 0.82 + Math.sin(entity.pulsePhase) * 0.18;
+
+            // Distance to cursor/light
+            const distToMouse = Math.hypot(this.mousePos.x - entity.x, this.mousePos.y - entity.y);
+
+            // State Machine: Lurking vs Retreating
+            if (entity.state === 'lurking') {
+                if (distToMouse < this.lightRadius) {
+                    // Light gets too close! Start fleeing deeper into darkness
+                    entity.state = 'fleeing';
+                    entity.targetOpacity = 0;
+                } else {
+                    entity.targetOpacity = 0.85 * pulse;
+                }
+            } else if (entity.state === 'fleeing') {
+                entity.opacity += (0 - entity.opacity) * dt * 3.5;
+                if (entity.opacity < 0.03) {
+                    entity.opacity = 0;
+                    entity.state = 'hidden';
+                    entity.hiddenTimer = 3.5 + Math.random() * 5.0; // Hide for a few seconds
+                }
+            } else if (entity.state === 'hidden') {
+                entity.hiddenTimer -= dt;
+                if (entity.hiddenTimer <= 0) {
+                    // Reposition in another dark corner of the deep ocean
+                    const margin = 120;
+                    const side = Math.random() > 0.5;
+                    entity.x = side ? (margin + Math.random() * 220) : (window.innerWidth - margin - Math.random() * 220);
+                    entity.y = window.innerHeight * (0.55 + Math.random() * 0.35); // Deep lower half
+                    entity.targetX = entity.x;
+                    entity.targetY = entity.y;
+
+                    // Ensure not right under mouse
+                    const newDist = Math.hypot(this.mousePos.x - entity.x, this.mousePos.y - entity.y);
+                    if (newDist > this.lightRadius + 80) {
+                        entity.state = 'returning';
+                    } else {
+                        entity.hiddenTimer = 1.5; // Wait before trying again
+                    }
+                }
+            } else if (entity.state === 'returning') {
+                entity.targetOpacity = 0.85;
+                if (entity.opacity > 0.75) {
+                    entity.state = 'lurking';
+                }
+            }
+
+            // Smooth opacity transition
+            entity.opacity += (entity.targetOpacity - entity.opacity) * dt * 2.2;
+
+            // 1. Pupil Gaze Tracking
+            const dx = this.mousePos.x - entity.x;
+            const dy = this.mousePos.y - entity.y;
+            const angle = Math.atan2(dy, dx);
+            const maxPupilShift = entity.eyeRadius * 0.38;
+
+            entity.saccadeTimer -= dt;
+            if (entity.saccadeTimer <= 0) {
+                entity.saccadeTimer = 1.2 + Math.random() * 3.0;
+                // Micro-saccade jitter
+                const jitterAngle = angle + (Math.random() - 0.5) * 0.35;
+                const jitterDist = maxPupilShift * (0.6 + Math.random() * 0.4);
+                entity.targetPupilX = Math.cos(jitterAngle) * jitterDist;
+                entity.targetPupilY = Math.sin(jitterAngle) * jitterDist;
+            }
+
+            entity.pupilOffsetX += (entity.targetPupilX - entity.pupilOffsetX) * dt * 6.0;
+            entity.pupilOffsetY += (entity.targetPupilY - entity.pupilOffsetY) * dt * 6.0;
+
+            // 2. Blinking Animation
+            entity.timeToNextBlink -= dt;
+            if (entity.timeToNextBlink <= 0 && !entity.isBlinking) {
+                entity.isBlinking = true;
+                entity.blinkProgress = 0;
+            }
+
+            if (entity.isBlinking) {
+                entity.blinkProgress += dt * 6.0; // Fast blink
+                if (entity.blinkProgress >= 2.0) {
+                    entity.isBlinking = false;
+                    entity.blinkProgress = 0;
+                    entity.timeToNextBlink = 4.0 + Math.random() * 8.0;
+                }
+            }
+        });
+    }
+
+    render() {
+        const ctx = this.ctx;
+
+        this.entities.forEach(entity => {
+            if (entity.opacity <= 0.01) return;
+
+            // Calculate eyelid closure: 0 -> 1 -> 0
+            let eyeOpenRatio = 1.0;
+            if (entity.isBlinking) {
+                const b = entity.blinkProgress <= 1.0 ? entity.blinkProgress : (2.0 - entity.blinkProgress);
+                eyeOpenRatio = Math.max(0.05, 1.0 - b);
+            }
+
+            const currentEyeHeight = entity.eyeRadius * eyeOpenRatio;
+            const halfDist = entity.eyeDistance * 0.5;
+
+            // Left Eye & Right Eye positions
+            const eyes = [
+                { x: entity.x - halfDist, y: entity.y },
+                { x: entity.x + halfDist, y: entity.y }
+            ];
+
+            eyes.forEach(eye => {
+                ctx.save();
+                ctx.translate(eye.x, eye.y);
+
+                const currentOpacity = entity.opacity;
+
+                // 1. Wide Abyssal Red Bloom (Atmospheric Depth Blur)
+                const outerBloomRadius = entity.eyeRadius * 5.5;
+                const bloomGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, outerBloomRadius);
+                bloomGrad.addColorStop(0, entity.glowColor + (0.55 * currentOpacity) + ')');
+                bloomGrad.addColorStop(0.3, entity.glowColor + (0.28 * currentOpacity) + ')');
+                bloomGrad.addColorStop(0.7, entity.glowColor + (0.08 * currentOpacity) + ')');
+                bloomGrad.addColorStop(1, 'rgba(180, 0, 10, 0)');
+
+                ctx.fillStyle = bloomGrad;
+                ctx.beginPath();
+                ctx.arc(0, 0, outerBloomRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 2. Focused Glowing Sclera / Iris (Blurred Ellipse)
+                ctx.beginPath();
+                ctx.ellipse(0, 0, entity.eyeRadius * 1.3, currentEyeHeight * 1.3, 0, 0, Math.PI * 2);
+                const irisGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, entity.eyeRadius * 1.3);
+                irisGrad.addColorStop(0, entity.innerColor + (0.95 * currentOpacity) + ')');
+                irisGrad.addColorStop(0.5, entity.glowColor + (0.75 * currentOpacity) + ')');
+                irisGrad.addColorStop(1, 'rgba(100, 0, 5, 0)');
+                ctx.fillStyle = irisGrad;
+                ctx.fill();
+
+                // 3. Eerie Pupil (Slit or Ellipse tracking cursor)
+                if (eyeOpenRatio > 0.25) {
+                    ctx.save();
+                    // Clip inside eye socket
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, entity.eyeRadius, currentEyeHeight, 0, 0, Math.PI * 2);
+                    ctx.clip();
+
+                    const px = entity.pupilOffsetX;
+                    const py = entity.pupilOffsetY * eyeOpenRatio;
+
+                    // Slit predator pupil
+                    ctx.beginPath();
+                    if (entity.slit) {
+                        ctx.ellipse(px, py, entity.pupilRadius * 0.45, entity.pupilRadius * 1.7 * eyeOpenRatio, 0, 0, Math.PI * 2);
+                    } else {
+                        ctx.ellipse(px, py, entity.pupilRadius * 0.8, entity.pupilRadius * 0.8 * eyeOpenRatio, 0, 0, Math.PI * 2);
+                    }
+                    ctx.fillStyle = `rgba(12, 1, 2, ${0.92 * currentOpacity})`;
+                    ctx.fill();
+
+                    // Hot specular gleam on the slit pupil edge
+                    ctx.beginPath();
+                    ctx.arc(px - 1, py - 2 * eyeOpenRatio, 1.4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 230, 210, ${0.85 * currentOpacity})`;
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+
+                ctx.restore();
+            });
+        });
+    }
+
+    getStatus() {
+        let hasFleeing = false;
+        let hasReturning = false;
+        let allHidden = true;
+
+        for (const e of this.entities) {
+            if (e.state === 'fleeing') hasFleeing = true;
+            if (e.state === 'returning') hasReturning = true;
+            if (e.state !== 'hidden') allHidden = false;
+        }
+
+        if (hasFleeing) return 'EVADING SPOTLIGHT';
+        if (allHidden) return 'HIDDEN IN TRENCH';
+        if (hasReturning) return 'EMERGING FROM SHADOWS';
+        return 'ACTIVE IN SHADOWS';
+    }
+}
+
+window.LurkingEyesSystem = LurkingEyesSystem;
+
+</script>
+<script>
+/* --- js\creatures.js --- */
+/**
+ * ====================================================================
+ * PROCEDURAL BIOLUMINESCENT DEEP-SEA CREATURES
+ * ====================================================================
+ * Diverse abyssal fauna with procedural swimming kinematics:
+ * 1. Deep-sea Anglerfish with glowing esca & bioluminescent photophores
+ * 2. Translucent Abyssal Jellyfish with pulsating bell & drifting tentacles
+ * 3. Bioluminescent Lanternfish with sleek flocking & shimmering dorsal fins
+ *
+ * Includes hover targeting, click detection, and hitboxes for contact zoom.
+ */
+
+class SeaCreatureSystem {
+    constructor(canvas, options = {}) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.onCreatureTap = options.onCreatureTap || null;
+
+        this.creatures = [];
+        this.hoveredCreature = null;
+        this.activeFocusCreature = null;
+
+        this.initCreatures();
+    }
+
+    initCreatures() {
+        this.creatures = [];
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        // 1. Signature Bioluminescent Anglerfish (Carries primary contact beacon)
+        this.creatures.push(new AnglerFish({
+            id: 'angler-github',
+            x: w * 0.25,
+            y: h * 0.45,
+            scale: 1.15,
+            speed: 1.2,
+            primaryColor: '#0ae4ff',
+            accentColor: '#38bdf8',
+            tag: 'GitHub & Contact Portal',
+            channelTarget: 'github'
+        }));
+
+        // 2. Abyssal Jellyfish (Translucent, serene pulse)
+        this.creatures.push(new AbyssalJellyfish({
+            id: 'jelly-facebook',
+            x: w * 0.68,
+            y: h * 0.35,
+            scale: 1.1,
+            speed: 0.9,
+            primaryColor: '#a855f7',
+            accentColor: '#ec4899',
+            tag: 'Facebook & Socials',
+            channelTarget: 'facebook'
+        }));
+
+        // 3. Bioluminescent Lanternfish (Fast, sleek)
+        this.creatures.push(new LanternFish({
+            id: 'lantern-email',
+            x: w * 0.52,
+            y: h * 0.65,
+            scale: 1.0,
+            speed: 1.6,
+            primaryColor: '#22d3ee',
+            accentColor: '#34d399',
+            tag: 'Email & Inquiries',
+            channelTarget: 'email'
+        }));
+
+        // 4. Second Deep Oceanic Swimmer
+        this.creatures.push(new LanternFish({
+            id: 'swimmer-deep',
+            x: w * 0.15,
+            y: h * 0.75,
+            scale: 0.85,
+            speed: 1.3,
+            primaryColor: '#38bdf8',
+            accentColor: '#818cf8',
+            tag: 'Computer Engineering Specs',
+            channelTarget: 'skills'
+        }));
+    }
+
+    resize() {
+        // Keep creatures strictly within screen boundaries on resize
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const margin = 80;
+        this.creatures.forEach(c => {
+            c.x = Math.max(margin, Math.min(w - margin, c.x));
+            c.y = Math.max(margin + 50, Math.min(h - margin, c.y));
+        });
+    }
+
+    checkHover(mouseX, mouseY) {
+        let found = null;
+        for (const c of this.creatures) {
+            const dist = Math.hypot(mouseX - c.x, mouseY - c.y);
+            if (dist < c.hitRadius) {
+                found = c;
+                break;
+            }
+        }
+        this.hoveredCreature = found;
+        return found;
+    }
+
+    checkClick(mouseX, mouseY) {
+        for (const c of this.creatures) {
+            const dist = Math.hypot(mouseX - c.x, mouseY - c.y);
+            if (dist < c.hitRadius * 1.3) {
+                if (this.onCreatureTap) {
+                    this.onCreatureTap(c);
+                }
+                return c;
+            }
+        }
+        return null;
+    }
+
+    update(dt, zoomFocusCreature = null) {
+        this.creatures.forEach(c => {
+            const isTarget = zoomFocusCreature && zoomFocusCreature.id === c.id;
+            c.update(dt, isTarget);
+        });
+    }
+
+    render(zoomRatio = 1.0) {
+        const ctx = this.ctx;
+
+        this.creatures.forEach(c => {
+            const isHovered = this.hoveredCreature && this.hoveredCreature.id === c.id;
+            c.render(ctx, isHovered, zoomRatio);
+        });
+    }
+}
+
+/**
+ * --------------------------------------------------------------------
+ * BASE CREATURE CLASS (Kinematics & Boid Wandering)
+ * --------------------------------------------------------------------
+ */
+class BaseCreature {
+    constructor(config) {
+        this.id = config.id;
+        this.x = config.x;
+        this.y = config.y;
+        this.scale = config.scale || 1.0;
+        this.speed = config.speed || 1.0;
+        this.primaryColor = config.primaryColor || '#00e5ff';
+        this.accentColor = config.accentColor || '#3b82f6';
+        this.tag = config.tag || 'Contact';
+        this.channelTarget = config.channelTarget || null;
+
+        this.angle = Math.random() * Math.PI * 2;
+        this.targetAngle = this.angle;
+        this.wanderTimer = 0;
+        this.swimCycle = Math.random() * 10;
+        this.glowIntensity = 1.0;
+        this.hitRadius = 45 * this.scale;
+    }
+
+    updateWander(dt, isTarget) {
+        if (isTarget) {
+            // Calm down when camera zooms in for inspection
+            this.glowIntensity = 1.4;
+            return;
+        }
+
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const margin = 80;
+
+        // Turn away from screen borders
+        let turn = false;
+        if (this.x < margin) { this.targetAngle = 0; turn = true; }
+        else if (this.x > w - margin) { this.targetAngle = Math.PI; turn = true; }
+        if (this.y < margin + 60) { this.targetAngle = Math.PI * 0.5; turn = true; }
+        else if (this.y > h - margin) { this.targetAngle = -Math.PI * 0.5; turn = true; }
+
+        if (!turn) {
+            this.wanderTimer -= dt;
+            if (this.wanderTimer <= 0) {
+                this.wanderTimer = 2.5 + Math.random() * 3.5;
+                this.targetAngle += (Math.random() - 0.5) * 1.5;
+            }
+        }
+
+        // Smooth angle interpolation
+        let diff = this.targetAngle - this.angle;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        this.angle += diff * dt * 1.8;
+
+        // Velocity
+        const currentSpeed = (35 * this.speed) * (1 + Math.sin(this.swimCycle) * 0.2);
+        this.x += Math.cos(this.angle) * currentSpeed * dt;
+        this.y += Math.sin(this.angle) * currentSpeed * dt;
+
+        // Hard boundary clamp so creatures never drift off screen
+        this.x = Math.max(margin * 0.4, Math.min(w - margin * 0.4, this.x));
+        this.y = Math.max(margin * 0.8, Math.min(h - margin * 0.4, this.y));
+
+        this.swimCycle += dt * 3.5 * this.speed;
+    }
+
+    renderHoverBadge(ctx, facingLeft = false) {
+        ctx.save();
+        if (facingLeft) ctx.scale(1, -1);
+
+        // Reticle ring
+        ctx.beginPath();
+        ctx.arc(0, 0, this.hitRadius + 10, 0, Math.PI * 2);
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = this.accentColor || '#38bdf8';
+        ctx.stroke();
+
+        // Holographic label
+        ctx.font = '600 11px system-ui, sans-serif';
+        const label = `✦ ${this.tag.toUpperCase()}`;
+        const textWidth = ctx.measureText(label).width;
+
+        ctx.fillStyle = 'rgba(7, 26, 45, 0.92)';
+        if (ctx.roundRect) {
+            ctx.roundRect(-textWidth / 2 - 10, -this.hitRadius - 28, textWidth + 20, 22, 5);
+        } else {
+            ctx.rect(-textWidth / 2 - 10, -this.hitRadius - 28, textWidth + 20, 22);
+        }
+        ctx.fill();
+        ctx.strokeStyle = this.primaryColor || '#38bdf8';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, 0, -this.hitRadius - 13);
+
+        ctx.restore();
+    }
+}
+
+/**
+ * --------------------------------------------------------------------
+ * 1. BIOLUMINESCENT ANGLERFISH
+ * --------------------------------------------------------------------
+ */
+class AnglerFish extends BaseCreature {
+    constructor(config) {
+        super(config);
+        this.hitRadius = 55 * this.scale;
+    }
+
+    update(dt, isTarget) {
+        this.updateWander(dt, isTarget);
+    }
+
+    render(ctx, isHovered, zoomRatio) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.scale(this.scale, this.scale);
+
+        // Flip vertically if swimming to the left so creature doesn't swim upside down
+        const facingLeft = Math.cos(this.angle) < 0;
+        if (facingLeft) {
+            ctx.scale(1, -1);
+        }
+
+        const flex = Math.sin(this.swimCycle) * 7;
+        const finFlex = Math.cos(this.swimCycle * 1.2) * 0.25;
+
+        // 1. Esca / Lure Glow (Volumetric Bioluminescent Lamp)
+        const lureX = 42;
+        const lureY = -28 + Math.sin(this.swimCycle * 0.8) * 3;
+
+        // Stalk arching forward from forehead
+        ctx.beginPath();
+        ctx.moveTo(15, -12);
+        ctx.quadraticCurveTo(28, -35, lureX, lureY);
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = '#1e3a5f';
+        ctx.stroke();
+
+        // Glowing bulb halo
+        const lureBloom = ctx.createRadialGradient(lureX, lureY, 1, lureX, lureY, isHovered ? 45 : 32);
+        lureBloom.addColorStop(0, 'rgba(80, 245, 255, 0.95)');
+        lureBloom.addColorStop(0.3, 'rgba(14, 165, 233, 0.6)');
+        lureBloom.addColorStop(0.7, 'rgba(3, 105, 161, 0.18)');
+        lureBloom.addColorStop(1, 'rgba(2, 20, 40, 0)');
+        ctx.fillStyle = lureBloom;
+        ctx.beginPath();
+        ctx.arc(lureX, lureY, isHovered ? 45 : 32, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bulb center
+        ctx.beginPath();
+        ctx.arc(lureX, lureY, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#f0fdf4';
+        ctx.fill();
+
+        // 2. Caudal / Tail Fin with sinusoidal wave
+        ctx.save();
+        ctx.translate(-38, 0);
+        ctx.rotate((flex * Math.PI) / 180);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-24, -18);
+        ctx.quadraticCurveTo(-16, 0, -28, 0);
+        ctx.quadraticCurveTo(-16, 0, -24, 18);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.75)';
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#38bdf8';
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Deep-Sea Body Shell
+        ctx.beginPath();
+        ctx.moveTo(32, 0); // Snout
+        ctx.quadraticCurveTo(24, -22, -8, -18); // Head dome
+        ctx.quadraticCurveTo(-26, -14, -38, flex * 0.4); // Back to tail
+        ctx.quadraticCurveTo(-24, 14, -6, 18); // Belly
+        ctx.quadraticCurveTo(22, 18, 32, 4); // Jaw
+        ctx.closePath();
+
+        const bodyGrad = ctx.createLinearGradient(30, 0, -35, 0);
+        bodyGrad.addColorStop(0, '#0c2238');
+        bodyGrad.addColorStop(0.5, '#071626');
+        bodyGrad.addColorStop(1, '#020b14');
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isHovered ? '#38bdf8' : '#0369a1';
+        ctx.stroke();
+
+        // 4. Bioluminescent Ventral Photophores (Glowing Dots along lateral line)
+        for (let i = 0; i < 6; i++) {
+            const px = 18 - i * 9;
+            const py = 6 + Math.sin(i * 0.8 + this.swimCycle) * 2;
+            ctx.beginPath();
+            ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = isHovered ? '#a5f3fc' : '#38bdf8';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        // 5. Pectoral Fin
+        ctx.save();
+        ctx.translate(-2, 4);
+        ctx.rotate(finFlex);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 14, 6, -0.4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.45)';
+        ctx.fill();
+        ctx.restore();
+
+        // 6. Glowing Eye
+        ctx.beginPath();
+        ctx.arc(16, -7, 4.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#0284c7';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(17, -7, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#e0f2fe';
+        ctx.fill();
+
+        // 7. Hover Reticle & Holographic Badge
+        if (isHovered) {
+            this.renderHoverBadge(ctx, facingLeft);
+        }
+
+        ctx.restore();
+    }
+}
+
+/**
+ * --------------------------------------------------------------------
+ * 2. ABYSSAL JELLYFISH
+ * --------------------------------------------------------------------
+ */
+class AbyssalJellyfish extends BaseCreature {
+    constructor(config) {
+        super(config);
+        this.hitRadius = 48 * this.scale;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        this.tentacleSegments = 7;
+    }
+
+    update(dt, isTarget) {
+        this.updateWander(dt, isTarget);
+        this.pulsePhase += dt * 2.2;
+    }
+
+    render(ctx, isHovered, zoomRatio) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle + Math.PI * 0.5); // Bell points forward along trajectory
+        ctx.scale(this.scale, this.scale);
+
+        const pulse = 1.0 + Math.sin(this.pulsePhase) * 0.18;
+        const squeeze = 1.0 - Math.sin(this.pulsePhase) * 0.12;
+
+        // 1. Bioluminescent Core Halo (Translucent Internal Glow)
+        const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, 38 * pulse);
+        halo.addColorStop(0, 'rgba(216, 70, 239, 0.9)');
+        halo.addColorStop(0.4, 'rgba(168, 85, 247, 0.45)');
+        halo.addColorStop(0.8, 'rgba(99, 102, 241, 0.15)');
+        halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(0, 0, 38 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. Translucent Bell Dome
+        ctx.beginPath();
+        ctx.moveTo(-28 * squeeze, 10);
+        ctx.bezierCurveTo(-34 * squeeze, -28 * pulse, 34 * squeeze, -28 * pulse, 28 * squeeze, 10);
+        ctx.bezierCurveTo(18 * squeeze, 6, 0, 12, -28 * squeeze, 10);
+        ctx.closePath();
+
+        const bellGrad = ctx.createLinearGradient(0, -28 * pulse, 0, 10);
+        bellGrad.addColorStop(0, 'rgba(192, 132, 252, 0.65)');
+        bellGrad.addColorStop(0.6, 'rgba(147, 51, 234, 0.4)');
+        bellGrad.addColorStop(1, 'rgba(126, 34, 206, 0.2)');
+        ctx.fillStyle = bellGrad;
+        ctx.fill();
+        ctx.lineWidth = 1.4;
+        ctx.strokeStyle = isHovered ? '#f0abfc' : 'rgba(232, 121, 249, 0.8)';
+        ctx.stroke();
+
+        // 3. Trailing Bioluminescent Tentacles
+        const tentacleCount = 5;
+        for (let t = 0; t < tentacleCount; t++) {
+            const tx = -20 + t * 10;
+            ctx.beginPath();
+            ctx.moveTo(tx, 10);
+
+            for (let s = 1; s <= 5; s++) {
+                const segY = 10 + s * 14;
+                const waveOffset = Math.sin(this.pulsePhase + s * 0.8 + t) * 6;
+                ctx.lineTo(tx + waveOffset, segY);
+            }
+
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = `rgba(244, 114, 182, ${0.7 - t * 0.08})`;
+            ctx.stroke();
+        }
+
+        // Hover Reticle & Holographic Tag
+        if (isHovered) {
+            this.renderHoverBadge(ctx, false);
+        }
+
+        ctx.restore();
+    }
+}
+
+/**
+ * --------------------------------------------------------------------
+ * 3. BIOLUMINESCENT LANTERNFISH
+ * --------------------------------------------------------------------
+ */
+class LanternFish extends BaseCreature {
+    constructor(config) {
+        super(config);
+        this.hitRadius = 42 * this.scale;
+    }
+
+    update(dt, isTarget) {
+        this.updateWander(dt, isTarget);
+    }
+
+    render(ctx, isHovered, zoomRatio) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.scale(this.scale, this.scale);
+
+        const facingLeft = Math.cos(this.angle) < 0;
+        if (facingLeft) {
+            ctx.scale(1, -1);
+        }
+
+        const flex = Math.sin(this.swimCycle * 1.3) * 6;
+
+        // Tail fin
+        ctx.beginPath();
+        ctx.moveTo(-32, 0);
+        ctx.lineTo(-46, -14 + flex);
+        ctx.lineTo(-40, 0);
+        ctx.lineTo(-46, 14 + flex);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.7)';
+        ctx.fill();
+
+        // Sleek Torpedo Body
+        ctx.beginPath();
+        ctx.moveTo(28, 0);
+        ctx.quadraticCurveTo(12, -14, -15, -10);
+        ctx.quadraticCurveTo(-26, -5, -32, flex * 0.3);
+        ctx.quadraticCurveTo(-22, 6, -12, 10);
+        ctx.quadraticCurveTo(12, 12, 28, 0);
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(25, 0, -30, 0);
+        grad.addColorStop(0, '#0284c7');
+        grad.addColorStop(0.5, '#075985');
+        grad.addColorStop(1, '#082f49');
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = isHovered ? '#67e8f9' : '#0284c7';
+        ctx.stroke();
+
+        // Ventral Glowing Photophore Row
+        for (let i = 0; i < 7; i++) {
+            const px = 14 - i * 6;
+            const py = 5 + Math.sin(i * 0.6 + this.swimCycle) * 1.5;
+            ctx.beginPath();
+            ctx.arc(px, py, 1.4, 0, Math.PI * 2);
+            ctx.fillStyle = isHovered ? '#a7f3d0' : '#22d3ee';
+            ctx.shadowColor = '#22d3ee';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        // Eye
+        ctx.beginPath();
+        ctx.arc(18, -3, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(19, -3, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        if (isHovered) {
+            this.renderHoverBadge(ctx, facingLeft);
+        }
+
+        ctx.restore();
+    }
+}
+
+window.SeaCreatureSystem = SeaCreatureSystem;
+
+</script>
+<script>
+/* --- js\particles.js --- */
+/**
+ * ====================================================================
+ * MARINE PARTICLES & BUBBLE SIMULATION
+ * ====================================================================
+ * - Marine snow (organic abyssal flakes drifting with currents)
+ * - Dynamic cavitation bubbles created during mouse water drags
+ * - Bioluminescent plankton micro-sparks reacting to turbulence
+ */
+
+class ParticleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+
+        this.marineSnow = [];
+        this.bubbles = [];
+        this.sparks = [];
+
+        this.snowCount = 140;
+        this.initMarineSnow();
+    }
+
+    initMarineSnow() {
+        this.marineSnow = [];
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        for (let i = 0; i < this.snowCount; i++) {
+            this.marineSnow.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                z: Math.random() * 0.8 + 0.2, // Depth factor (size, speed, alpha)
+                radius: Math.random() * 2.2 + 0.8,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: Math.random() * 0.5 + 0.2,
+                wobblePhase: Math.random() * Math.PI * 2,
+                wobbleSpeed: Math.random() * 0.8 + 0.4,
+                alpha: Math.random() * 0.4 + 0.2
+            });
+        }
+    }
+
+    /**
+     * Spawn bubbles along mouse drag vector
+     */
+    spawnDragBubbles(x, y, vx, vy, count = 3) {
+        if (this.bubbles.length >= 65) return; // Prevent performance drop during heavy interaction
+        const allowed = Math.min(count, 65 - this.bubbles.length);
+
+        for (let i = 0; i < allowed; i++) {
+            const spread = 18;
+            const r = Math.random() * 4.5 + 1.8;
+            this.bubbles.push({
+                x: x + (Math.random() - 0.5) * spread,
+                y: y + (Math.random() - 0.5) * spread,
+                vx: (Math.random() - 0.5) * 1.5 + vx * 0.12,
+                vy: -Math.random() * 3.5 - 1.5, // Buoyant upward acceleration
+                radius: r,
+                initialRadius: r,
+                life: 1.0,
+                decay: Math.random() * 0.015 + 0.008,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: Math.random() * 4 + 2
+            });
+        }
+    }
+
+    /**
+     * Spawn bioluminescent sparks on turbulence or creature tap
+     */
+    spawnSparks(x, y, count = 16, rawColor = 'rgba(70, 230, 255, ') {
+        if (this.sparks.length >= 80) return;
+        const allowed = Math.min(count, 80 - this.sparks.length);
+
+        // Normalize color to "rgba(r, g, b, " format
+        let colorPrefix = 'rgba(70, 230, 255, ';
+        if (typeof rawColor === 'string') {
+            if (rawColor.startsWith('#')) {
+                let h = rawColor.replace('#', '');
+                if (h.length === 3) h = h.split('').map(c => c + c).join('');
+                const intVal = parseInt(h, 16) || 0;
+                const r = (intVal >> 16) & 255;
+                const g = (intVal >> 8) & 255;
+                const b = intVal & 255;
+                colorPrefix = `rgba(${r}, ${g}, ${b}, `;
+            } else if (rawColor.startsWith('rgba(') && rawColor.endsWith(', ')) {
+                colorPrefix = rawColor;
+            } else if (rawColor.startsWith('rgb(')) {
+                colorPrefix = rawColor.replace('rgb(', 'rgba(').replace(')', ', ');
+            }
+        }
+
+        for (let i = 0; i < allowed; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 3.5 + 1.0;
+            this.sparks.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: colorPrefix,
+                radius: Math.random() * 2.0 + 1.2,
+                life: 1.0,
+                decay: Math.random() * 0.02 + 0.015
+            });
+        }
+    }
+
+    resize() {
+        this.initMarineSnow();
+    }
+
+    update(dt) {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        // 1. Update Marine Snow
+        for (let i = 0; i < this.marineSnow.length; i++) {
+            const p = this.marineSnow[i];
+            p.wobblePhase += dt * p.wobbleSpeed;
+            p.x += (p.vx + Math.sin(p.wobblePhase) * 0.3) * p.z;
+            p.y += p.vy * p.z;
+
+            // Wrap edges
+            if (p.y > h + 10) {
+                p.y = -10;
+                p.x = Math.random() * w;
+            }
+            if (p.x < -10) p.x = w + 10;
+            if (p.x > w + 10) p.x = -10;
+        }
+
+        // 2. Update Bubbles
+        for (let i = this.bubbles.length - 1; i >= 0; i--) {
+            const b = this.bubbles[i];
+            b.wobble += dt * b.wobbleSpeed;
+            b.x += b.vx + Math.sin(b.wobble) * 0.7;
+            b.y += b.vy;
+            b.vy -= dt * 4.2; // Buoyancy acceleration
+            b.life -= b.decay;
+
+            if (b.y < -20 || b.life <= 0) {
+                this.bubbles.splice(i, 1);
+            }
+        }
+
+        // 3. Update Sparks
+        for (let i = this.sparks.length - 1; i >= 0; i--) {
+            const s = this.sparks[i];
+            s.x += s.vx;
+            s.y += s.vy;
+            s.vx *= 0.94;
+            s.vy *= 0.94;
+            s.life -= s.decay;
+
+            if (s.life <= 0) {
+                this.sparks.splice(i, 1);
+            }
+        }
+    }
+
+    render() {
+        const ctx = this.ctx;
+
+        // 1. Render Marine Snow
+        for (let i = 0; i < this.marineSnow.length; i++) {
+            const p = this.marineSnow[i];
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius * p.z, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(180, 225, 245, ${p.alpha * p.z * 0.7})`;
+            ctx.fill();
+        }
+
+        // 2. Render Bubbles with glassy aquatic sheen
+        for (let i = 0; i < this.bubbles.length; i++) {
+            const b = this.bubbles[i];
+            ctx.save();
+            ctx.translate(b.x, b.y);
+
+            // Bubble body
+            ctx.beginPath();
+            ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(140, 210, 245, ${0.18 * b.life})`;
+            ctx.fill();
+
+            // Bubble rim
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = `rgba(200, 240, 255, ${0.65 * b.life})`;
+            ctx.stroke();
+
+            // Specular sunlight highlight on top-left of bubble
+            ctx.beginPath();
+            ctx.arc(-b.radius * 0.35, -b.radius * 0.35, b.radius * 0.28, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.85 * b.life})`;
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // 3. Render Sparks
+        for (let i = 0; i < this.sparks.length; i++) {
+            const s = this.sparks[i];
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius * s.life, 0, Math.PI * 2);
+            ctx.fillStyle = s.color + (s.life * 0.9) + ')';
+            ctx.fill();
+        }
+    }
+}
+
+window.ParticleSystem = ParticleSystem;
+
+</script>
+<script>
+/* --- js\ocean.js --- */
+/**
+ * ====================================================================
+ * ATLANTIC DEEP-SEA ENVIRONMENT & VOLUMETRIC LIGHTING
+ * ====================================================================
+ * - Deep dark blue Atlantic base gradient with abyssal light absorption
+ * - Procedural volumetric sunlight shafts (godrays) angling from top
+ * - Dynamic surface caustics shimmer
+ * - Submersible exploration spotlight tracking the cursor
+ * - Cinematic camera zoom interpolation
+ */
+
+class AtlanticOceanRenderer {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+
+        this.time = 0;
+        this.mousePos = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
+        this.smoothedMouse = { x: this.mousePos.x, y: this.mousePos.y };
+
+        // Camera transform for smooth cinematic zooming
+        const centerX = window.innerWidth * 0.5;
+        const centerY = window.innerHeight * 0.5;
+        this.camera = {
+            worldX: centerX,
+            worldY: centerY,
+            targetWorldX: centerX,
+            targetWorldY: centerY,
+            screenX: centerX,
+            screenY: centerY,
+            targetScreenX: centerX,
+            targetScreenY: centerY,
+            zoom: 1.0,
+            targetZoom: 1.0,
+            isZoomed: false
+        };
+
+        // Procedural light ray parameters
+        this.lightRays = [
+            { baseAngle: 0.28, width: 90, speed: 0.18, phase: 0.0, alpha: 0.22 },
+            { baseAngle: 0.32, width: 140, speed: 0.14, phase: 1.8, alpha: 0.32 },
+            { baseAngle: 0.24, width: 110, speed: 0.22, phase: 3.5, alpha: 0.26 },
+            { baseAngle: 0.38, width: 180, speed: 0.12, phase: 5.1, alpha: 0.38 },
+            { baseAngle: 0.22, width: 80, speed: 0.25, phase: 2.2, alpha: 0.20 }
+        ];
+
+        this.resize();
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        if (!this.camera.isZoomed) {
+            const cx = window.innerWidth * 0.5;
+            const cy = window.innerHeight * 0.5;
+            this.camera.worldX = cx;
+            this.camera.worldY = cy;
+            this.camera.targetWorldX = cx;
+            this.camera.targetWorldY = cy;
+            this.camera.screenX = cx;
+            this.camera.screenY = cy;
+            this.camera.targetScreenX = cx;
+            this.camera.targetScreenY = cy;
+        }
+    }
+
+    setMousePosition(x, y) {
+        this.mousePos.x = x;
+        this.mousePos.y = y;
+    }
+
+    /**
+     * Trigger smooth camera zoom into a coordinate (e.g. creature)
+     */
+    zoomTo(x, y, zoomLevel = 2.2) {
+        const isWide = window.innerWidth > 1024;
+        const focusCenterX = isWide ? (window.innerWidth * 0.28) : (window.innerWidth * 0.5);
+        const focusCenterY = isWide ? (window.innerHeight * 0.5) : (window.innerHeight * 0.32);
+
+        this.camera.targetWorldX = x;
+        this.camera.targetWorldY = y;
+        this.camera.targetScreenX = focusCenterX;
+        this.camera.targetScreenY = focusCenterY;
+        this.camera.targetZoom = zoomLevel;
+        this.camera.isZoomed = true;
+    }
+
+    /**
+     * Reset camera back to default ocean view
+     */
+    resetZoom() {
+        const cx = window.innerWidth * 0.5;
+        const cy = window.innerHeight * 0.5;
+        this.camera.targetWorldX = cx;
+        this.camera.targetWorldY = cy;
+        this.camera.targetScreenX = cx;
+        this.camera.targetScreenY = cy;
+        this.camera.targetZoom = 1.0;
+        this.camera.isZoomed = false;
+    }
+
+    update(dt) {
+        this.time += dt;
+
+        // Smooth cursor tracking
+        this.smoothedMouse.x += (this.mousePos.x - this.smoothedMouse.x) * dt * 4.0;
+        this.smoothedMouse.y += (this.mousePos.y - this.smoothedMouse.y) * dt * 4.0;
+
+        // Camera lerp
+        const lerpSpeed = dt * 3.8;
+        this.camera.worldX += (this.camera.targetWorldX - this.camera.worldX) * lerpSpeed;
+        this.camera.worldY += (this.camera.targetWorldY - this.camera.worldY) * lerpSpeed;
+        this.camera.screenX += (this.camera.targetScreenX - this.camera.screenX) * lerpSpeed;
+        this.camera.screenY += (this.camera.targetScreenY - this.camera.screenY) * lerpSpeed;
+        this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * lerpSpeed;
+    }
+
+    /**
+     * Render the deep sea Atlantic gradient, caustics, and volumetric sunlight
+     */
+    render() {
+        const ctx = this.ctx;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+
+        // 1. Base Atlantic Deep-Sea Gradient (Dark Navy to Abyssal Trench)
+        const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+        baseGrad.addColorStop(0, '#03172e'); // Top illuminated water column
+        baseGrad.addColorStop(0.2, '#021226');
+        baseGrad.addColorStop(0.5, '#010c1c'); // Mid pelagic dark ocean
+        baseGrad.addColorStop(0.8, '#010712');
+        baseGrad.addColorStop(1, '#000308'); // Abyssal benthic darkness
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Sunlight Reflections & Volumetric Godrays Penetrating from the Top
+        this.renderSunlightShafts(ctx, w, h);
+
+        // 3. Dynamic Caustics Shimmer Layer
+        this.renderCausticWaves(ctx, w, h);
+
+        // 4. Submersible Exploration Flashlight / Ambient Cursor Cone
+        this.renderSubmersibleLight(ctx);
+    }
+
+    renderSunlightShafts(ctx, w, h) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        const originX = w * 0.35;
+        const originY = -50;
+
+        this.lightRays.forEach(ray => {
+            const sway = Math.sin(this.time * ray.speed + ray.phase) * 0.04;
+            const angle = ray.baseAngle + sway;
+            const length = h * 1.35;
+
+            const endX = originX + Math.sin(angle) * length;
+            const endY = originY + Math.cos(angle) * length;
+
+            const rayGrad = ctx.createLinearGradient(originX, originY, endX, endY);
+            rayGrad.addColorStop(0, `rgba(180, 240, 255, ${ray.alpha * 0.95})`);
+            rayGrad.addColorStop(0.15, `rgba(56, 189, 248, ${ray.alpha * 0.7})`);
+            rayGrad.addColorStop(0.45, `rgba(14, 165, 233, ${ray.alpha * 0.35})`);
+            rayGrad.addColorStop(0.8, `rgba(2, 132, 199, ${ray.alpha * 0.08})`);
+            rayGrad.addColorStop(1, 'rgba(0, 30, 60, 0)');
+
+            ctx.fillStyle = rayGrad;
+            ctx.beginPath();
+            ctx.moveTo(originX - 15, originY);
+            ctx.lineTo(originX + 15, originY);
+            ctx.lineTo(endX + ray.width * 0.8, endY);
+            ctx.lineTo(endX - ray.width * 0.8, endY);
+            ctx.closePath();
+            ctx.fill();
+        });
+
+        // Surface water glint along very top edge
+        const topGlint = ctx.createLinearGradient(0, 0, 0, 90);
+        topGlint.addColorStop(0, 'rgba(140, 220, 255, 0.45)');
+        topGlint.addColorStop(0.4, 'rgba(56, 189, 248, 0.18)');
+        topGlint.addColorStop(1, 'rgba(3, 105, 161, 0)');
+        ctx.fillStyle = topGlint;
+        ctx.fillRect(0, 0, w, 90);
+
+        ctx.restore();
+    }
+
+    renderCausticWaves(ctx, w, h) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        const t = this.time * 0.6;
+        const causticCount = 12;
+
+        ctx.strokeStyle = 'rgba(70, 210, 255, 0.045)';
+        ctx.lineWidth = 1.6;
+
+        for (let i = 0; i < causticCount; i++) {
+            const baseY = 30 + i * 28;
+            ctx.beginPath();
+            ctx.moveTo(0, baseY);
+
+            for (let x = 0; x <= w; x += 40) {
+                const cy = baseY + Math.sin(x * 0.015 + t + i * 0.8) * 12 + Math.cos(x * 0.028 - t * 0.7) * 8;
+                ctx.lineTo(x, cy);
+            }
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    renderSubmersibleLight(ctx) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        const mx = this.smoothedMouse.x;
+        const my = this.smoothedMouse.y;
+        const radius = 280;
+
+        // Submersible lantern glow around cursor
+        const lanternGrad = ctx.createRadialGradient(mx, my, 4, mx, my, radius);
+        lanternGrad.addColorStop(0, 'rgba(140, 225, 255, 0.22)');
+        lanternGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.10)');
+        lanternGrad.addColorStop(0.7, 'rgba(2, 132, 199, 0.03)');
+        lanternGrad.addColorStop(1, 'rgba(0, 20, 40, 0)');
+
+        ctx.fillStyle = lanternGrad;
+        ctx.beginPath();
+        ctx.arc(mx, my, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Spotlight on focused creature if zoomed
+        if (this.camera.zoom > 1.05) {
+            const zAlpha = Math.min(0.35, (this.camera.zoom - 1.0) * 0.28);
+            const cx = this.camera.screenX;
+            const cy = this.camera.screenY;
+            const creatureLight = ctx.createRadialGradient(cx, cy, 10, cx, cy, 260);
+            creatureLight.addColorStop(0, `rgba(56, 189, 248, ${zAlpha})`);
+            creatureLight.addColorStop(0.5, `rgba(14, 165, 233, ${zAlpha * 0.4})`);
+            creatureLight.addColorStop(1, 'rgba(0, 20, 40, 0)');
+            ctx.fillStyle = creatureLight;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 260, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+}
+
+window.AtlanticOceanRenderer = AtlanticOceanRenderer;
+
+</script>
+<script>
+/* --- js\main.js --- */
+/**
+ * ====================================================================
+ * DEEP SEA ATLANTIC PORTFOLIO - MAIN CONTROLLER
+ * Milbert A. Lomibao | Computer Engineering
+ * ====================================================================
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Load User Configuration
+    const config = window.PORTFOLIO_CONFIG || {};
+
+    // 2. DOM Elements
+    const oceanCanvas = document.getElementById('ocean-canvas');
+    const eyesCanvas = document.getElementById('eyes-canvas');
+    const creaturesCanvas = document.getElementById('creatures-canvas');
+    const particlesCanvas = document.getElementById('particles-canvas');
+    const rippleCanvas = document.getElementById('ripple-canvas');
+
+    const heroSection = document.getElementById('hero-section');
+    const heroName = document.getElementById('hero-name');
+    const heroTitle = document.getElementById('hero-title');
+    const heroTagline = document.getElementById('hero-tagline');
+
+    const audioToggle = document.getElementById('audio-toggle');
+    const audioLabel = document.getElementById('audio-label');
+
+    const contactModal = document.getElementById('contact-modal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const returnBtn = document.getElementById('return-btn');
+
+    const modalName = document.getElementById('modal-name');
+    const modalDiscipline = document.getElementById('modal-discipline');
+    const modalBio = document.getElementById('modal-bio');
+    const modalSkills = document.getElementById('modal-skills');
+
+    const btnFacebook = document.getElementById('btn-facebook');
+    const btnGithub = document.getElementById('btn-github');
+    const btnLinkedin = document.getElementById('btn-linkedin');
+    const fbSubtitle = document.getElementById('fb-subtitle');
+    const ghSubtitle = document.getElementById('gh-subtitle');
+    const liSubtitle = document.getElementById('li-subtitle');
+    const terminalBeaconText = document.getElementById('terminal-beacon-text');
+    const eyesIndicatorVal = document.querySelector('#eyes-status .sensor-val');
+
+    const valEmail = document.getElementById('val-email');
+    const valPhone = document.getElementById('val-phone');
+    const valLocation = document.getElementById('val-location');
+    const copyToast = document.getElementById('copy-toast');
+
+    // Telemetry values
+    const depthMeter = document.getElementById('depth-meter');
+    const valPressure = document.getElementById('val-pressure');
+    const valTemp = document.getElementById('val-temp');
+
+    // 3. Populate Config Details
+    if (config.name) {
+        modalName.textContent = config.name;
+        if (heroName) {
+            const parts = config.name.trim().split(' ');
+            if (parts.length > 1) {
+                const last = parts.pop();
+                const first = parts.join(' ');
+                heroName.innerHTML = `<span class="name-first">${first}</span> <span class="name-last">${last}</span>`;
+            } else {
+                heroName.innerHTML = `<span class="name-first">${config.name}</span>`;
+            }
+        }
+    }
+    if (config.academicField) {
+        heroTitle.textContent = config.academicField;
+        modalDiscipline.textContent = config.academicField;
+    }
+    if (config.specialization) {
+        heroTagline.textContent = config.specialization;
+    }
+    if (config.bio) {
+        modalBio.textContent = config.bio;
+    }
+
+    // Populate Contacts from Config
+    if (config.contacts) {
+        // Facebook
+        if (config.contacts.facebook && btnFacebook) {
+            btnFacebook.href = config.contacts.facebook.url || '#';
+            if (config.contacts.facebook.description && fbSubtitle) {
+                fbSubtitle.textContent = config.contacts.facebook.description;
+            }
+        }
+        // GitHub
+        if (config.contacts.github && btnGithub) {
+            btnGithub.href = config.contacts.github.url || '#';
+            if (config.contacts.github.description && ghSubtitle) {
+                ghSubtitle.textContent = config.contacts.github.description;
+            }
+        }
+        // LinkedIn
+        if (config.contacts.linkedin && btnLinkedin) {
+            btnLinkedin.href = config.contacts.linkedin.url || '#';
+            if (config.contacts.linkedin.description && liSubtitle) {
+                liSubtitle.textContent = config.contacts.linkedin.description;
+            }
+        }
+        // Email
+        if (config.contacts.email && valEmail) {
+            valEmail.textContent = config.contacts.email.value;
+            valEmail.href = config.contacts.email.url || `mailto:${config.contacts.email.value}`;
+        }
+        // Phone
+        if (config.contacts.phone && valPhone) {
+            valPhone.textContent = config.contacts.phone.value;
+            valPhone.href = config.contacts.phone.url || `tel:${config.contacts.phone.value}`;
+        }
+        // Location
+        if (config.contacts.location && valLocation) {
+            valLocation.textContent = config.contacts.location.value;
+        }
+    }
+
+    // Populate Academic Knowledge Skills Cloud
+    if (config.academicSkills && modalSkills) {
+        modalSkills.innerHTML = '';
+        config.academicSkills.forEach(skill => {
+            const tag = document.createElement('span');
+            tag.className = 'skill-tag';
+            tag.textContent = skill.name;
+            modalSkills.appendChild(tag);
+        });
+    }
+
+    // Ocean Settings Telemetry
+    if (config.oceanSettings) {
+        if (depthMeter && config.oceanSettings.depthMeters) {
+            depthMeter.textContent = Number(config.oceanSettings.depthMeters).toLocaleString();
+        }
+        if (valPressure && config.oceanSettings.ambientPressure) {
+            valPressure.textContent = config.oceanSettings.ambientPressure;
+        }
+        if (valTemp && config.oceanSettings.waterTemperature) {
+            valTemp.textContent = config.oceanSettings.waterTemperature;
+        }
+    }
+
+    // 4. Initialize Core Systems
+    const audioEngine = new window.DeepSeaAudioEngine();
+    const oceanRenderer = new window.AtlanticOceanRenderer(oceanCanvas);
+    const eyesSystem = new window.LurkingEyesSystem(eyesCanvas);
+    const particleSystem = new window.ParticleSystem(particlesCanvas);
+    const rippleSim = new window.WaterRippleSimulation(rippleCanvas);
+
+    let activeZoomCreature = null;
+
+    // Sea Creatures with Tap Callback
+    const creatureSystem = new window.SeaCreatureSystem(creaturesCanvas, {
+        onCreatureTap: (creature) => {
+            openCreatureContact(creature);
+        }
+    });
+
+    // 5. Open Creature Contact & Cinematic Zoom
+    function openCreatureContact(creature) {
+        activeZoomCreature = creature;
+
+        // Cinematic camera zoom focused onto the tapped creature
+        oceanRenderer.zoomTo(creature.x, creature.y, 2.3);
+
+        // Sound effects
+        audioEngine.playCreatureTapSound();
+
+        // Plankton spark explosion around the creature
+        particleSystem.spawnSparks(creature.x, creature.y, 24, creature.primaryColor || '#00f0ff');
+
+        // Dynamic terminal beacon indicator
+        if (terminalBeaconText && creature.tag) {
+            terminalBeaconText.textContent = `CREATURE BEACON: ${creature.tag.toUpperCase()}`;
+        }
+
+        // Dim background hero and open glassmorphic contact terminal
+        heroSection.classList.add('dimmed');
+        contactModal.classList.add('active');
+        contactModal.setAttribute('aria-hidden', 'false');
+
+        // Clear any previous target highlights
+        document.querySelectorAll('.target-highlight').forEach(el => el.classList.remove('target-highlight'));
+
+        // Highlight matching direct channel or knowledge section
+        let targetEl = null;
+        const target = creature.channelTarget || creature.id;
+        if (target === 'github' || creature.id.includes('github')) {
+            targetEl = btnGithub;
+        } else if (target === 'facebook' || creature.id.includes('facebook')) {
+            targetEl = btnFacebook;
+        } else if (target === 'linkedin') {
+            targetEl = btnLinkedin;
+        } else if (target === 'email' || creature.id.includes('email')) {
+            targetEl = document.getElementById('item-email');
+        } else if (target === 'skills' || creature.id.includes('deep')) {
+            targetEl = modalSkills;
+        }
+
+        if (targetEl) {
+            targetEl.classList.add('target-highlight');
+            setTimeout(() => {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 180);
+        }
+    }
+
+    // Helper: Hex color to RGB
+    function hexToRgb(hex) {
+        if (!hex) return '0, 240, 255';
+        let h = hex.replace('#', '');
+        if (h.length === 3) h = h.split('').map(c => c + c).join('');
+        const bigint = parseInt(h, 16) || 0;
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `${r}, ${g}, ${b}`;
+    }
+
+    // Close Contact Modal & Reset Zoom
+    function closeContactModal() {
+        contactModal.classList.remove('active');
+        contactModal.setAttribute('aria-hidden', 'true');
+        heroSection.classList.remove('dimmed');
+
+        // Remove highlights
+        document.querySelectorAll('.target-highlight').forEach(el => el.classList.remove('target-highlight'));
+
+        oceanRenderer.resetZoom();
+        audioEngine.playZoomOutSound();
+        activeZoomCreature = null;
+    }
+
+    closeModalBtn.addEventListener('click', closeContactModal);
+    modalBackdrop.addEventListener('click', closeContactModal);
+    returnBtn.addEventListener('click', closeContactModal);
+
+    // Escape key closes modals
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (contactModal.classList.contains('active')) {
+                closeContactModal();
+            }
+        }
+    });
+
+    // 6. Audio Toggle Button
+    audioToggle.addEventListener('click', () => {
+        const isMuted = audioEngine.toggleMute();
+        if (isMuted) {
+            audioToggle.classList.remove('audio-active');
+            audioLabel.textContent = 'SOUND: MUTED';
+        } else {
+            audioToggle.classList.add('audio-active');
+            audioLabel.textContent = 'SOUND: ACTIVE';
+        }
+    });
+
+    // 7. Copy to Clipboard Functionality with Fallback for file:// context
+    let toastTimeout = null;
+
+    function showToast(msg) {
+        copyToast.querySelector('span').textContent = msg;
+        copyToast.classList.add('show');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            copyToast.classList.remove('show');
+            toastTimeout = null;
+        }, 2400);
+    }
+
+    function fallbackCopy(text) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast(`Copied ${text} to clipboard!`);
+        } catch (err) {
+            showToast('Failed to copy');
+        }
+    }
+
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const targetId = btn.getAttribute('data-copy');
+            if (targetId) {
+                const targetEl = document.getElementById(targetId);
+                if (!targetEl) return;
+
+                const textToCopy = targetEl.textContent.trim();
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showToast(`Copied ${textToCopy} to clipboard!`);
+                    }).catch(() => {
+                        fallbackCopy(textToCopy);
+                    });
+                } else {
+                    fallbackCopy(textToCopy);
+                }
+            }
+        });
+    });
+
+    // 8. Mouse & Touch Water Dragging Interactions
+    let isDragging = false;
+    let lastX = null;
+    let lastY = null;
+
+    function handlePointerDown(e) {
+        // Only trigger if contact modal is closed
+        if (contactModal.classList.contains('active')) return;
+
+        const x = e.clientX;
+        const y = e.clientY;
+
+        // Check if user tapped directly on a creature
+        const clickedCreature = creatureSystem.checkClick(x, y);
+        if (clickedCreature) {
+            return; // Creature tap handled
+        }
+
+        // Resume suspended AudioContext on first interaction
+        if (audioEngine.ctx && audioEngine.ctx.state === 'suspended') {
+            audioEngine.ctx.resume();
+        }
+
+        // Auto-enable audio on initial interaction if configured
+        if (config.oceanSettings && config.oceanSettings.enableAudioByDefault && audioEngine.isMuted) {
+            audioEngine.toggleMute();
+            audioToggle.classList.add('audio-active');
+            audioLabel.textContent = 'SOUND: ACTIVE';
+        }
+
+        isDragging = true;
+        lastX = x;
+        lastY = y;
+        rippleCanvas.classList.add('cursor-dragging');
+
+        // Immediate wave burst on initial touch/click
+        rippleSim.disturb(x, y, 9, 220);
+        audioEngine.playWaterWaveSound(1.5);
+    }
+
+    function handlePointerMove(e) {
+        const x = e.clientX;
+        const y = e.clientY;
+
+        // Update systems with mouse coordinate
+        oceanRenderer.setMousePosition(x, y);
+        eyesSystem.setMousePosition(x, y);
+
+        // Check creature hover targeting
+        if (!contactModal.classList.contains('active')) {
+            const hovered = creatureSystem.checkHover(x, y);
+            if (hovered) {
+                rippleCanvas.classList.add('cursor-hover');
+            } else {
+                rippleCanvas.classList.remove('cursor-hover');
+            }
+        }
+
+        // Dragging wave physics
+        if (isDragging && lastX !== null && lastY !== null) {
+            const dx = x - lastX;
+            const dy = y - lastY;
+            const speed = Math.hypot(dx, dy);
+
+            if (speed > 2) {
+                // Disturb water wave simulation along drag vector
+                const waveRadius = Math.min(16, 7 + speed * 0.25);
+                const waveStrength = Math.min(280, 140 + speed * 6);
+                rippleSim.disturbLine(lastX, lastY, x, y, waveRadius, waveStrength);
+
+                // Spawn drag cavitation bubbles
+                particleSystem.spawnDragBubbles(x, y, dx, dy, Math.min(4, Math.floor(speed * 0.25)));
+
+                // Procedural hydrodynamic sound
+                audioEngine.playWaterWaveSound(speed);
+            }
+
+            lastX = x;
+            lastY = y;
+        }
+    }
+
+    function handlePointerUp() {
+        isDragging = false;
+        lastX = null;
+        lastY = null;
+        rippleCanvas.classList.remove('cursor-dragging');
+    }
+
+    // Attach pointer listeners to window and rippleCanvas
+    rippleCanvas.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    // Subtle passive oceanic wave disturbance (gentle ocean swell)
+    let ambientWaveTimer = 0;
+
+    // 9. Resize Handling
+    function handleResize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        [oceanCanvas, eyesCanvas, creaturesCanvas, particlesCanvas, rippleCanvas].forEach(c => {
+            c.width = w;
+            c.height = h;
+        });
+
+        oceanRenderer.resize();
+        eyesSystem.resize();
+        particleSystem.resize();
+        creatureSystem.resize();
+        rippleSim.resize();
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    // 10. Main Animation Loop (60 FPS)
+    let lastTime = performance.now();
+
+    function animate(currentTime) {
+        requestAnimationFrame(animate);
+
+        const dt = Math.min(0.1, (currentTime - lastTime) / 1000);
+        lastTime = currentTime;
+
+        // Occasional natural deep ocean water swell
+        ambientWaveTimer += dt;
+        if (ambientWaveTimer > 3.5) {
+            ambientWaveTimer = 0;
+            const rx = Math.random() * window.innerWidth;
+            const ry = Math.random() * window.innerHeight * 0.4; // Upper ocean swell
+            rippleSim.disturb(rx, ry, 12, 70);
+        }
+
+        // 1. Update & Render Ocean Background & Sunlight Godrays
+        oceanRenderer.update(dt);
+        oceanRenderer.render();
+
+        // Apply camera zoom transform to upper layers
+        const cam = oceanRenderer.camera;
+
+        // 2. Lurking Red Eyes in the Dark
+        const eyesCtx = eyesCanvas.getContext('2d');
+        eyesCtx.clearRect(0, 0, eyesCanvas.width, eyesCanvas.height);
+        eyesSystem.update(dt);
+        eyesSystem.render();
+
+        // Update telemetry stalker entity indicator
+        if (eyesIndicatorVal) {
+            const currentStatus = eyesSystem.getStatus();
+            if (eyesIndicatorVal.textContent !== currentStatus) {
+                eyesIndicatorVal.textContent = currentStatus;
+            }
+        }
+
+        // 3. Wandering Creatures Layer (with Camera Zoom interpolation)
+        const creaturesCtx = creaturesCanvas.getContext('2d');
+        creaturesCtx.clearRect(0, 0, creaturesCanvas.width, creaturesCanvas.height);
+        creaturesCtx.save();
+        if (Math.abs(cam.zoom - 1.0) > 0.001 || cam.isZoomed) {
+            creaturesCtx.translate(cam.screenX, cam.screenY);
+            creaturesCtx.scale(cam.zoom, cam.zoom);
+            creaturesCtx.translate(-cam.worldX, -cam.worldY);
+        }
+        creatureSystem.update(dt, activeZoomCreature);
+        creatureSystem.render(cam.zoom);
+        creaturesCtx.restore();
+
+        // 4. Marine Snow & Cavitation Bubbles
+        const partCtx = particlesCanvas.getContext('2d');
+        partCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+        particleSystem.update(dt);
+        particleSystem.render();
+
+        // 5. Water Wave Physics Simulation & Refractive Rendering
+        rippleSim.render();
+    }
+
+    requestAnimationFrame(animate);
+});
+
+</script>
+
+</body>
+</html>
